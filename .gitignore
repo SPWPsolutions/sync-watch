@@ -1,0 +1,39 @@
+# Teleparty analysis artifacts (DO NOT SHIP)
+original/
+production-extension/
+patched-extension/
+mod/
+pretty/
+unpacked/
+extracted/
+tools/
+
+# Dependencies
+node_modules/
+
+# Environment
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+
+# Build outputs
+dist/
+build/
+*.zip
+
+# Temporary files
+.tmp/
+temp/

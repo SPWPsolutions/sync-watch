@@ -1,0 +1,28 @@
+{
+  "name": "party-sync-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/server.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "qa": "node --test test/qa/chrome-qa.test.js",
+    "qa:live": "QA_TARGET=https://watch-party-pw57bakb5a-uc.a.run.app node --test test/qa/chrome-qa.test.js",
+    "start": "node src/server.js",
+    "patch-extension": "node tools/patch-extension.js",
+    "build:extension": "node tools/build-extension-zip.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "firebase-admin": "^14.5.0",
+    "ws": "^8.18.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

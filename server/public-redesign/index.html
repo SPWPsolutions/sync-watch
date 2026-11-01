@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0a0a0a" />
+<title>Party Sync — Watch Together</title>
+<meta name="description" content="Watch videos in perfect sync with friends. Create a party, share the link, press play together." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/styles.css" />
+<link rel="stylesheet" href="/animations.css" />
+</head>
+<body>
+<div class="app">
+
+  <!-- ===== Header ===== -->
+  <header class="site-header">
+    <div class="brand">
+      <div class="brand__mark" id="brandMark"></div>
+      <div>
+        <div class="brand__name"><span>Party Sync</span></div>
+        <div class="brand__tag">Watch together, in sync</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <span class="conn" id="conn" data-q="off" title="Connection quality">
+        <span class="conn__bars"><i></i><i></i><i></i></span>
+        <span id="connText">Connecting…</span>
+      </span>
+      <button class="account" id="accountBtn" aria-haspopup="dialog">
+        <span class="account__avatar" id="accountAvatar">G</span>
+        <span class="account__label" id="accountLabel">Guest</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ===== Lobby (no active party) ===== -->
+  <section class="lobby enter" id="lobby">
+    <!-- Create -->
+    <div class="card glass">
+      <p class="card__eyebrow">Host</p>
+      <h1 class="card__title">Start a watch party</h1>
+      <p class="card__sub">Pick a video, create the party, and share the link. Everyone presses play together.</p>
+      <div class="stack">
+        <div class="field">
+          <label class="field__label" for="src">Video URL (YouTube or direct link)</label>
+          <input class="input" id="src" type="text" autocomplete="off"
+            placeholder="https://www.youtube.com/watch?v=…  or  https://…/video.mp4" />
+          <p class="note note--muted" id="srcBadge"></p>
+        </div>
+        <div class="field">
+          <label class="field__label" for="file">…or load a local file</label>
+          <input class="input input-file" id="file" type="file" accept="video/*" />
+        </div>
+        <div class="field">
+          <label class="field__label" for="nick">Your nickname</label>
+          <input class="input" id="nick" type="text" placeholder="e.g. analyst" maxlength="32" autocomplete="off" />
+        </div>
+        <button class="btn btn--primary btn--lg btn--block" id="create">
+          <span class="btn__label">Create party</span>
+        </button>
+        <p class="note note--error" id="createError" role="alert"></p>
+      </div>
+    </div>
+
+    <!-- Join -->
+    <div class="card glass">
+      <div class="poster">
+        <div class="poster__glow"></div>
+        <span id="posterLogo"></span>
+      </div>
+      <p class="card__eyebrow">Guest</p>
+      <h2 class="card__title" style="font-size:20px">Join a party</h2>
+      <p class="card__sub" id="joinSub">Paste an invite link or session ID from your host.</p>
+      <div class="stack">
+        <div class="field">
+          <label class="field__label" for="sid">Invite link or session ID</label>
+          <input class="input" id="sid" type="text" placeholder="paste link or ID" autocomplete="off" />
+        </div>
+        <div class="invite-preview hidden" id="invitePreview" aria-live="polite"></div>
+        <button class="btn btn--block" id="join">
+          <span class="btn__label">Join party</span>
+        </button>
+        <p class="note note--error" id="joinError" role="alert"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Party (active) ===== -->
+  <section class="party hidden" id="party">
+    <!-- Stage -->
+    <div class="stage">
+      <div class="player-wrap" id="playerWrap">
+        <video id="v" controls playsinline></video>
+        <div class="yt-host" id="yt" hidden></div>
+        <div class="player-spinner hidden" id="spinner" aria-hidden="true"><span class="spinner"></span></div>
+        <button class="unmute hidden" id="unmute" type="button">Tap to unmute</button>
+        <div class="player-overlay hidden" id="overlay" role="dialog" aria-label="Player notice">
+          <div class="player-overlay__icon" id="overlayIcon"></div>
+          <h3 class="player-overlay__title" id="overlayTitle"></h3>
+          <p class="player-overlay__text" id="overlayText"></p>
+          <div class="player-overlay__actions" id="overlayActions"></div>
+        </div>
+      </div>
+
+      <div class="statusbar glass">
+        <span class="sync" id="sync" data-state="idle">
+          <span class="sync__dot"></span>
+          <span id="syncText">Idle</span>
+        </span>
+        <span class="pill"><span class="live-dot"></span> LIVE</span>
+        <span class="pill">Session <code id="sidBadge">—</code></span>
+        <span class="statusbar__spacer"></span>
+        <button class="btn btn--ghost" id="resync" type="button" title="Resync to the party">Resync</button>
+        <button class="btn btn--ghost btn--icon" id="settingsBtn" type="button" title="Party settings" aria-label="Party settings"></button>
+        <button class="btn btn--danger" id="leave" type="button"><span class="btn__label">Leave</span></button>
+      </div>
+
+      <details class="devlog glass" style="padding:0 14px 10px" hidden id="devlog">
+        <summary>Protocol trace</summary>
+        <pre id="log"></pre>
+      </details>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar glass">
+      <div class="tabs" role="tablist" aria-label="Party panels">
+        <button class="tab" data-tab="invite" role="tab" id="tab-invite">Invite</button>
+        <button class="tab is-active" data-tab="chat" role="tab" id="tab-chat">
+          <span id="tabChatIcon"></span> Chat <span class="badge hidden" id="chatBadge">0</span>
+        </button>
+        <button class="tab" data-tab="people" role="tab" id="tab-people">
+          <span id="tabPeopleIcon"></span> People <span class="badge" id="peopleBadge">0</span>
+        </button>
+      </div>
+
+      <!-- Invite panel -->
+      <div class="tabpanel" data-panel="invite" role="tabpanel" aria-labelledby="tab-invite">
+        <div class="invite">
+          <label class="field__label" style="display:block;margin-bottom:8px">Party link</label>
+          <div class="invite__row">
+            <div class="invite__link" id="link" tabindex="0">—</div>
+            <button class="btn btn--icon" id="copyLink" type="button" title="Copy invite link" aria-label="Copy invite link"></button>
+          </div>
+          <div class="share-row" id="shareRow"></div>
+          <div class="qr" id="qr"></div>
+        </div>
+      </div>
+
+      <!-- Chat panel -->
+      <div class="tabpanel is-active" data-panel="chat" role="tabpanel" aria-labelledby="tab-chat">
+        <div class="chat-log" id="chatLog" aria-live="polite"></div>
+        <div class="typing-indicator hidden" id="typing" aria-live="polite"></div>
+        <form class="chat-compose" id="chatForm">
+          <input class="input" id="chat" type="text" placeholder="Say something…" maxlength="500" autocomplete="off" />
+          <button class="btn btn--primary btn--icon" id="sendChat" type="submit" title="Send" aria-label="Send message"></button>
+        </form>
+      </div>
+
+      <!-- People panel -->
+      <div class="tabpanel" data-panel="people" role="tabpanel" aria-labelledby="tab-people">
+        <div class="people" id="people"></div>
+      </div>
+    </aside>
+  </section>
+</div>
+
+<!-- ===== Auth modal ===== -->
+<div class="modal-backdrop" id="authModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="authTitle">
+  <div class="modal glass">
+    <div class="modal__head">
+      <h3 class="modal__title" id="authTitle">Sign in</h3>
+      <button class="modal__close" data-close aria-label="Close">×</button>
+    </div>
+    <div id="authSignedOut">
+      <div class="seg">
+        <button type="button" id="segLogin" class="is-active">Log in</button>
+        <button type="button" id="segSignup">Sign up</button>
+      </div>
+      <form class="stack" id="authForm">
+        <div class="field">
+          <label class="field__label" for="email">Email</label>
+          <input class="input" id="email" type="email" placeholder="you@example.com" autocomplete="username" />
+        </div>
+        <div class="field">
+          <label class="field__label" for="password">Password</label>
+          <input class="input" id="password" type="password" placeholder="••••••••" autocomplete="current-password" />
+        </div>
+        <button class="btn btn--primary btn--block" id="authSubmit" type="submit"><span class="btn__label">Log in</span></button>
+      </form>
+      <div class="note note--muted" id="authNote"></div>
+    </div>
+    <div id="authSignedIn" class="hidden stack">
+      <p class="muted" style="margin:0">Signed in as <b id="authEmail"></b></p>
+      <button class="btn btn--block" id="logout" type="button">Log out</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Settings modal ===== -->
+<div class="modal-backdrop" id="settingsModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="setTitle">
+  <div class="modal glass">
+    <div class="modal__head">
+      <h3 class="modal__title" id="setTitle">Party settings</h3>
+      <button class="modal__close" data-close aria-label="Close">×</button>
+    </div>
+    <form class="stack" id="settingsForm">
+      <div class="field">
+        <label class="field__label" for="nick2">Nickname</label>
+        <input class="input" id="nick2" type="text" placeholder="nickname" maxlength="32" autocomplete="off" />
+      </div>
+      <div class="field" id="srcField2">
+        <label class="field__label" for="src2">Change video source (host only)</label>
+        <input class="input" id="src2" type="text" placeholder="https://…" autocomplete="off" />
+      </div>
+      <p class="note note--error" id="settingsError" role="alert"></p>
+      <p class="note note--muted">Drift tolerance before a hard seek: <b>1.0s</b>. Clock is NTP-synced to the server.</p>
+      <button class="btn btn--primary btn--block" id="settingsSave" type="submit">Save</button>
+    </form>
+  </div>
+</div>
+
+<!-- Firebase compat SDK (public web config; pinned). Used only if firebase-config.js is filled in. -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="/firebase-config.js"></script>
+
+<!-- UI components (window globals) -->
+<script src="/components/icons.js"></script>
+<script src="/components/toast.js"></script>
+<script src="/components/qr.js"></script>
+<script src="/components/modal.js"></script>
+
+<!-- App (ES module; reuses the proven sync/connection/player logic) -->
+<script type="module" src="/client.js"></script>
+</body>
+</html>

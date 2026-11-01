@@ -1,0 +1,91 @@
+{
+  "manifest_version": 3,
+  "name": "Party Sync",
+  "version": "1.0.0",
+  "description": "Watch Netflix and Crunchyroll in sync with friends. Everyone uses their own account.",
+  "minimum_chrome_version": "111",
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://www.netflix.com/*",
+    "https://www.crunchyroll.com/*",
+    "https://watch.pwlive.fyi/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.netflix.com/*",
+        "https://www.crunchyroll.com/*"
+      ],
+      "js": [
+        "shared/keyguard.js",
+        "shared/invite.js"
+      ],
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://www.netflix.com/*"
+      ],
+      "js": [
+        "netflix/injected.js"
+      ],
+      "world": "MAIN",
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://www.netflix.com/*"
+      ],
+      "js": [
+        "shared/socket.js",
+        "shared/sync.js",
+        "shared/media.js",
+        "shared/party.js",
+        "shared/chat.js",
+        "netflix/content.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://www.crunchyroll.com/*"
+      ],
+      "js": [
+        "shared/socket.js",
+        "shared/sync.js",
+        "shared/media.js",
+        "shared/party.js",
+        "shared/chat.js",
+        "crunchyroll/content.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://watch.pwlive.fyi/*"
+      ],
+      "js": [
+        "site/detect.js"
+      ],
+      "run_at": "document_start"
+    }
+  ]
+}

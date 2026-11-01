@@ -1,0 +1,56 @@
+:root {
+  --bg: #12121c;
+  --panel: #1c1c2b;
+  --text: #ececf4;
+  --muted: #9a9ab0;
+  --accent: #6366f1;
+  --teal: #2dd4bf;
+  --danger: #f87171;
+}
+* { box-sizing: border-box; }
+body {
+  width: 320px;
+  margin: 0;
+  padding: 16px;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.45 system-ui, sans-serif;
+}
+header { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 16px; margin-bottom: 14px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--teal)); }
+section { display: flex; flex-direction: column; gap: 10px; }
+label { display: flex; flex-direction: column; gap: 4px; color: var(--muted); font-size: 12px; }
+input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #2e2e44;
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--text);
+  font: inherit;
+}
+input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+button {
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: #2a2a40;
+  color: var(--text);
+  font: 600 14px system-ui, sans-serif;
+  cursor: pointer;
+}
+button:hover { filter: brightness(1.15); }
+button:disabled { opacity: .5; cursor: progress; }
+button.primary { background: var(--accent); }
+button.danger { background: transparent; color: var(--danger); border: 1px solid #4a2a33; }
+button.small { padding: 6px 10px; font-size: 12px; }
+.row { display: flex; gap: 6px; }
+.or { text-align: center; color: var(--muted); font-size: 12px; }
+.status { margin: 0; font-weight: 600; }
+.hint { margin: 0; color: var(--muted); font-size: 12px; }
+ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+li { padding: 6px 10px; background: var(--panel); border-radius: 6px; }
+li.host::after { content: " · host"; color: var(--muted); font-size: 12px; }
+#error { color: var(--danger); margin: 10px 0 0; font-size: 13px; }
+details { margin-top: 14px; color: var(--muted); font-size: 12px; }
+details label { margin-top: 8px; }

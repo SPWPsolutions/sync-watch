@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Party Sync</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header><span class="dot"></span>Party Sync</header>
+
+  <section id="unsupported" hidden>
+    <p>Open a title on <b>Netflix</b> or <b>Crunchyroll</b> and start playing it, then open this popup again.</p>
+  </section>
+
+  <section id="idle" hidden>
+    <label>Your name <input id="nickname" maxlength="24" placeholder="Guest"></label>
+    <button id="create" class="primary">Start a party</button>
+    <div class="or">or join one</div>
+    <label>Invite link or party ID <input id="joinInput" placeholder="https://watch.pwlive.fyi/join/…"></label>
+    <button id="join">Join party</button>
+  </section>
+
+  <section id="active" hidden>
+    <p class="status" id="syncStatus"></p>
+    <label>Invite link
+      <span class="row"><input id="partyUrl" readonly><button id="copy" class="small">Copy</button></span>
+    </label>
+    <p class="hint">Friends with Party Sync installed just open this link: it takes them to the same title and joins the party.</p>
+    <ul id="members"></ul>
+    <button id="leave" class="danger">Leave party</button>
+  </section>
+
+  <p id="error" role="alert" hidden></p>
+
+  <details>
+    <summary>Settings</summary>
+    <label>Server <input id="serverUrl" spellcheck="false"></label>
+  </details>
+
+  <script src="popup.js"></script>
+</body>
+</html>

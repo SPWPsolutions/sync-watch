@@ -1,0 +1,80 @@
+/* ==========================================================================
+   Animations & micro-interactions
+   ========================================================================== */
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.4; transform: scale(0.85); }
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(40px) scale(0.9); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+@keyframes toast-out {
+  to { opacity: 0; transform: translateX(40px) scale(0.9); }
+}
+
+@keyframes msg-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-in { animation: fade-in .4s ease both; }
+
+/* Staggered entrance for lobby/party panels */
+.enter > * { animation: fade-in .45s ease both; }
+.enter > *:nth-child(2) { animation-delay: .06s; }
+.enter > *:nth-child(3) { animation-delay: .12s; }
+
+/* Spinner / loading */
+.spinner {
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.25); border-top-color: #fff;
+  animation: spin .7s linear infinite; display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Button loading state */
+.btn.is-loading { pointer-events: none; }
+.btn.is-loading .btn__label { opacity: 0; }
+.btn.is-loading::after {
+  content: ""; position: absolute;
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.35); border-top-color: #fff;
+  animation: spin .7s linear infinite;
+}
+.btn { position: relative; }
+
+/* Skeleton shimmer for loading states */
+.skeleton {
+  background: linear-gradient(100deg, rgba(255,255,255,0.04) 30%, rgba(255,255,255,0.10) 50%, rgba(255,255,255,0.04) 70%);
+  background-size: 200% 100%; animation: shimmer 1.3s infinite; border-radius: 8px;
+}
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+/* Copy-success flash on buttons */
+@keyframes copied-flash {
+  0% { background: var(--accent-green); color: #04210f; }
+  100% { }
+}
+.flash-success { animation: copied-flash .6s ease; }
+
+/* Live gradient drift on brand mark */
+@keyframes grad-drift {
+  0%, 100% { filter: hue-rotate(0deg); }
+  50% { filter: hue-rotate(12deg); }
+}
+.brand__mark { animation: grad-drift 8s ease-in-out infinite; }
+
+/* Ping dot for "live" party badge */
+.live-dot { position: relative; width: 8px; height: 8px; border-radius: 50%; background: var(--accent-green); }
+.live-dot::after {
+  content: ""; position: absolute; inset: -4px; border-radius: 50%;
+  border: 2px solid var(--accent-green); animation: ping 1.6s cubic-bezier(0,0,.2,1) infinite;
+}
+@keyframes ping { 0% { transform: scale(0.6); opacity: 1; } 100% { transform: scale(1.8); opacity: 0; } }

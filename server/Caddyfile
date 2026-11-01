@@ -1,0 +1,5 @@
+{$DOMAIN} {
+	encode gzip
+	# Caddy proxies WebSocket upgrades transparently.
+	reverse_proxy party:8080
+}
