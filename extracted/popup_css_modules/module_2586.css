@@ -1,0 +1,33 @@
+/* webpack module 2586 | source offset 145867 */
+/* class map: {"ellipsesAnim":"pr6pPjeKFG4TyQ8hmo_K","ellipsis-dot":"xhWdIUUO4T1RIzESJKgD"} */
+
+.pr6pPjeKFG4TyQ8hmo_K/*ellipsesAnim*/ span {
+    opacity: 0;
+    -webkit-animation: xhWdIUUO4T1RIzESJKgD 1s infinite;
+    animation: xhWdIUUO4T1RIzESJKgD 1s infinite;
+}
+
+.pr6pPjeKFG4TyQ8hmo_K/*ellipsesAnim*/ span:nth-child(1) {
+    -webkit-animation-delay: 0s;
+    animation-delay: 0s;
+}
+.pr6pPjeKFG4TyQ8hmo_K/*ellipsesAnim*/ span:nth-child(2) {
+    -webkit-animation-delay: 0.1s;
+    animation-delay: 0.1s;
+}
+.pr6pPjeKFG4TyQ8hmo_K/*ellipsesAnim*/ span:nth-child(3) {
+    -webkit-animation-delay: 0.2s;
+    animation-delay: 0.2s;
+}
+
+@keyframes xhWdIUUO4T1RIzESJKgD {
+    0% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}

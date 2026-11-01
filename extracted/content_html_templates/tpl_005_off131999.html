@@ -1,0 +1,14 @@
+<!-- source offset 131999, length 620 -->
+
+            <div class="msg-container ${!i&&"tp-msg-combined"}-message">
+                <div class="tp-icon-name">
+                    <div class="icon">
+                    ${i?`<img src="${Is(t)}" data-tp-id="chat_history_container-user_icon"/>`:""}
+                    </div>
+                </div>
+                <div class="msg-txt message${n.isSystemMessage?"-system":"-txt"}">
+                    ${i?`<h3 data-tp-id="chat_history_container-nickname">${e}</h3>`:""}
+                    <p data-tp-id="chat_history_container-message">${Is(n.body).trim()}</p>
+                </div>
+            </div>
+          

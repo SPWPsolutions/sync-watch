@@ -1,0 +1,58 @@
+<!-- source offset 297367, length 2261 -->
+
+    <div style="display:flex; flex-direction:column; width:400px; align-items:center;">
+
+      <!-- Header -->
+      <div style="display:flex; justify-content:flex-end; width:100%;">
+        ${Za(this.ID_CLOSE,"cursor: pointer !important;")}
+      </div>
+
+      <!-- Avatar -->
+      <div style="position:relative; width:100px; height:100px; margin-top:8px; margin-bottom:28px;">
+        <div style="
+          width:100px; height:100px;
+          border-radius:50%;
+          overflow:hidden;
+          background:#545454;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+        ">
+          ${e}
+        </div>
+      </div>
+
+      <!-- Form -->
+      <div style="display:flex; flex-direction:column; gap:10px; width:100%;">
+        <span class="user-pill-name" style="padding-left:4px; font-size:16px; color:#e0e0e0;">Choose your Handle</span>
+        <div style="
+          display:flex; align-items:center; gap:2px; background:#1f1f1f;
+          border-radius:4px; padding-left:14px; height:48px;">
+          <span style="color:white; font-size:18px;">@</span>
+          <input
+            id="${this.ID_INPUT}"
+            type="text"
+            placeholder="username"
+            maxlength="32"
+            autocomplete="off"
+            aria-label="Handle"
+            style="flex:1; background:transparent; border:none; outline:none; color:white; font-size:18px;"
+          />
+        </div>
+        <span class="user-pill-name" style="padding-left:4px; font-size:13px; color:#8a8a8a;">
+          You can change your handle up to 3 times after this, so choose wisely.
+        </span>
+        <span id="${this.ID_ERROR}" class="allchat-error-text" style="display:none;"></span>
+        <span id="${this.ID_STATUS}" class="user-pill-name" style="padding-left:4px; font-size:13px; color:#8a8a8a; display:none;"></span>
+      </div>
+
+      <!-- Actions -->
+      <div style="display:flex; flex-direction:column; width:100%; margin-top:24px; align-items:center">
+        <button id="${this.ID_SUBMIT}" class="gradient-200-button"
+          style="height:48px; border-radius:4px; font-weight:700; cursor:pointer; border:none; outline:none; width:100%">
+          Submit
+        </button>
+      </div>
+
+    </div>
+    

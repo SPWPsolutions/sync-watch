@@ -1,0 +1,17 @@
+<!-- source offset 310907, length 921 -->
+
+      <div style="display:flex; flex-direction:column; width:470px;">
+        <span class="allchat-modal-header" style="margin-bottom:4px;">Community Guidelines</span>
+        <span class="allchat-modal-body">Please agree to the following community guidelines before commenting:</span>
+
+        <div style="display:flex; flex-direction:column; gap:8px; margin-top:20px; margin-bottom:20px;">
+          ${Vu.map(t=>this.checkboxHtml(t.text,t.id)).join("")}
+          <span class="allchat-error-text" id="${this.ID_ERROR}"></span>
+        </div>
+
+        <div style="display:flex; flex-direction:row; align-items:center; justify-content:right; width:100%;">
+          <span id="${this.ID_CANCEL}" class="allchat-chatbox-button" style="font-weight:600; margin-right:16px; font-size:16px;">Cancel</span>
+          <span id="${this.ID_CONFIRM}" class="gradient-200-button">Post Comment</span>
+        </div>
+      </div>
+    

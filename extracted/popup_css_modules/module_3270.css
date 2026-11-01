@@ -1,0 +1,11 @@
+/* webpack module 3270 | source offset 150068 */
+/* class map: {"reviewMessage":"Mifo80YNJgx06ZG_YB7L"} */
+
+.Mifo80YNJgx06ZG_YB7L/*reviewMessage*/ > hr {
+    border-color: var(--black-20);
+}
+
+.Mifo80YNJgx06ZG_YB7L/*reviewMessage*/ > p {
+    font-size: 14px;
+    color: var(--white-15);
+}

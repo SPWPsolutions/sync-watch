@@ -1,0 +1,433 @@
+[
+  {
+    "file": "tpl_001_off4067.html",
+    "offset": 4067,
+    "length": 3714,
+    "brand": 1,
+    "ids": [
+      "tpIconContainer",
+      "tp-buttons-container",
+      "tp-icon-container",
+      "tp-icon-white",
+      "play-chat-icon",
+      "tp-message-indicator"
+    ],
+    "placeholders": [
+      "EXTENSION_LOGO_GRADIENT",
+      "PLAY_CHAT",
+      "FRIENDS_IMAGE",
+      "LINK_IMAGE",
+      "LINK_ACTIVE_IMAGE",
+      "RESET_CHAT_IMAGE",
+      "CHAT_HIDDEN_IMAGE",
+      "CHAT_GRAY_IMAGE",
+      "CHAT_ACTIVE_IMAGE",
+      "DISCONNECT_IMAGE",
+      "ARROW_RIGHT"
+    ]
+  },
+  {
+    "file": "tpl_002_off119061.html",
+    "offset": 119061,
+    "length": 783,
+    "brand": 0,
+    "ids": [
+      "alert-dialog-wrapper",
+      "alert-dialog-container",
+      "alert-title-wrapper",
+      "alert-title-txt",
+      "alert-x-btn",
+      "alert-description"
+    ],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_003_off119893.html",
+    "offset": 119893,
+    "length": 647,
+    "brand": 0,
+    "ids": [
+      "alert-dialog-wrapper",
+      "alert-dialog-container",
+      "alert-title-wrapper",
+      "alert-title-txt",
+      "alert-x-btn",
+      "alert-description"
+    ],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_004_off120842.html",
+    "offset": 120842,
+    "length": 1104,
+    "brand": 0,
+    "ids": [
+      "tp-layout-wrapper"
+    ],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_005_off131999.html",
+    "offset": 131999,
+    "length": 620,
+    "brand": 0,
+    "ids": [
+      "chat_history_container-user_icon",
+      "chat_history_container-nickname",
+      "chat_history_container-message"
+    ],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_006_off132849.html",
+    "offset": 132849,
+    "length": 932,
+    "brand": 0,
+    "ids": [
+      "chat_history_container-user_icon",
+      "chat_history_container-nickname",
+      "chat_history_container-gif",
+      "chat_history_container-gif"
+    ],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_007_off133821.html",
+    "offset": 133821,
+    "length": 494,
+    "brand": 0,
+    "ids": [
+      "chat_history_container-user_icon",
+      "chat_history_container-message"
+    ],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_008_off134541.html",
+    "offset": 134541,
+    "length": 890,
+    "brand": 0,
+    "ids": [
+      "chat_history_container-user_icon",
+      "chat_history_container-gif",
+      "chat_history_container-gif"
+    ],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_009_off141201.html",
+    "offset": 141201,
+    "length": 497,
+    "brand": 0,
+    "ids": [
+      "tp_youtube_promo"
+    ],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_010_off141773.html",
+    "offset": 141773,
+    "length": 520,
+    "brand": 1,
+    "ids": [
+      "reviewLink"
+    ],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_011_off154876.html",
+    "offset": 154876,
+    "length": 2997,
+    "brand": 0,
+    "ids": [],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_012_off243040.html",
+    "offset": 243040,
+    "length": 1597,
+    "brand": 0,
+    "ids": [
+      "clip0_1785_27366"
+    ],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_013_off245282.html",
+    "offset": 245282,
+    "length": 1062,
+    "brand": 0,
+    "ids": [],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_014_off246387.html",
+    "offset": 246387,
+    "length": 1017,
+    "brand": 0,
+    "ids": [],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_015_off247447.html",
+    "offset": 247447,
+    "length": 1056,
+    "brand": 0,
+    "ids": [
+      "tp-allchat-show-create-post"
+    ],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_016_off249587.html",
+    "offset": 249587,
+    "length": 1140,
+    "brand": 0,
+    "ids": [
+      "tp-allchat-chatbox-pauseplay"
+    ],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_017_off250735.html",
+    "offset": 250735,
+    "length": 877,
+    "brand": 0,
+    "ids": [
+      "tp-allchat-chatbox-pauseplay"
+    ],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_018_off253338.html",
+    "offset": 253338,
+    "length": 621,
+    "brand": 0,
+    "ids": [
+      "allchat-user-pill"
+    ],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_019_off254101.html",
+    "offset": 254101,
+    "length": 489,
+    "brand": 0,
+    "ids": [
+      "allchat-user-pill",
+      "allchat-edit-profile-open-btn"
+    ],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_020_off261561.html",
+    "offset": 261561,
+    "length": 4379,
+    "brand": 0,
+    "ids": [
+      "tp-allchat-chatbox",
+      "mask0_1785_33205",
+      "paint0_linear_1785_33205",
+      "tp-allchat-chatbox-controls-container",
+      "tp-allchat-chatbox-input",
+      "tp-flair-row"
+    ],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_021_off267978.html",
+    "offset": 267978,
+    "length": 1095,
+    "brand": 0,
+    "ids": [
+      "allchat-dont-show-feedback"
+    ],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_022_off274636.html",
+    "offset": 274636,
+    "length": 446,
+    "brand": 0,
+    "ids": [],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_023_off275863.html",
+    "offset": 275863,
+    "length": 4793,
+    "brand": 0,
+    "ids": [
+      "clip0_4816_39661"
+    ],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_024_off284292.html",
+    "offset": 284292,
+    "length": 571,
+    "brand": 0,
+    "ids": [],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_025_off285480.html",
+    "offset": 285480,
+    "length": 553,
+    "brand": 0,
+    "ids": [],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_026_off286235.html",
+    "offset": 286235,
+    "length": 3958,
+    "brand": 0,
+    "ids": [],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_027_off290288.html",
+    "offset": 290288,
+    "length": 563,
+    "brand": 0,
+    "ids": [],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_028_off296310.html",
+    "offset": 296310,
+    "length": 446,
+    "brand": 0,
+    "ids": [],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_029_off297367.html",
+    "offset": 297367,
+    "length": 2261,
+    "brand": 0,
+    "ids": [],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_030_off302849.html",
+    "offset": 302849,
+    "length": 4875,
+    "brand": 3,
+    "ids": [],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_031_off310076.html",
+    "offset": 310076,
+    "length": 806,
+    "brand": 0,
+    "ids": [],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_032_off310907.html",
+    "offset": 310907,
+    "length": 921,
+    "brand": 0,
+    "ids": [],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_033_off313148.html",
+    "offset": 313148,
+    "length": 1210,
+    "brand": 0,
+    "ids": [],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_034_off314407.html",
+    "offset": 314407,
+    "length": 468,
+    "brand": 0,
+    "ids": [],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_035_off315178.html",
+    "offset": 315178,
+    "length": 2827,
+    "brand": 3,
+    "ids": [],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_036_off318444.html",
+    "offset": 318444,
+    "length": 1980,
+    "brand": 0,
+    "ids": [
+      "tp-allchat-live-feed",
+      "tp-flair-container",
+      "mask0_1785_27357"
+    ],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_037_off321104.html",
+    "offset": 321104,
+    "length": 488,
+    "brand": 0,
+    "ids": [],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_038_off322940.html",
+    "offset": 322940,
+    "length": 1130,
+    "brand": 0,
+    "ids": [],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_039_off326539.html",
+    "offset": 326539,
+    "length": 477,
+    "brand": 0,
+    "ids": [],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_040_off329627.html",
+    "offset": 329627,
+    "length": 474,
+    "brand": 0,
+    "ids": [],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_041_off330131.html",
+    "offset": 330131,
+    "length": 863,
+    "brand": 0,
+    "ids": [],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_042_off334299.html",
+    "offset": 334299,
+    "length": 2357,
+    "brand": 0,
+    "ids": [
+      "tp-floating-chat-guidelines-btn"
+    ],
+    "placeholders": []
+  },
+  {
+    "file": "tpl_043_off340012.html",
+    "offset": 340012,
+    "length": 1750,
+    "brand": 0,
+    "ids": [
+      "tp-floating-chat-body"
+    ],
+    "placeholders": []
+  }
+]

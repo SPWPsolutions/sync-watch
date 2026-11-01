@@ -1,0 +1,28 @@
+/* webpack module 1011 | source offset 688 */
+/* class map: {"contextMenu":"KleE7n7iqvwMTvnBHMG1","active":"as5kDQNcjC66VHAQwcqB","activityContextMenu":"c4OnVvC5unVt_YkGoWVh"} */
+
+.KleE7n7iqvwMTvnBHMG1/*contextMenu*/ {
+    position: fixed;
+    margin-top: 8px;
+    right: 16px;
+    transform: scale(0.9);
+    opacity: 0;
+    pointer-events: none;
+    transition: all var(--transition-time);
+    border-radius: 8px;
+    border: 1px solid var(--black-15);
+    overflow: hidden;
+    z-index: 100000;
+}
+
+.KleE7n7iqvwMTvnBHMG1/*contextMenu*/.as5kDQNcjC66VHAQwcqB/*active*/ {
+    transform: scale(1);
+    opacity: 1;
+    pointer-events: unset;
+}
+
+.c4OnVvC5unVt_YkGoWVh/*activityContextMenu*/ {
+    right: unset;
+    left: 16px;
+    top: 56px;
+}

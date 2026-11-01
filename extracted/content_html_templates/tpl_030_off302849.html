@@ -1,0 +1,64 @@
+<!-- source offset 302849, length 4875 -->
+
+    <div style="
+      display:flex; flex-direction:column; width:470px; height:600px;
+      position:relative; overflow:hidden; background-color:rgba(0,0,0,0.9);
+      font-family:'Poppins', sans-serif; padding-bottom:76px; box-sizing:border-box;
+    ">
+      <div style="display:flex; padding-bottom:6px; flex-direction:row; align-items:center; justify-content:space-between; width:100%;">
+        <div style="display:flex; flex-direction:row; align-items:center">
+          <span class="allchat-modal-header" style="margin-right:8px;">Introducing All Chat</span>
+          ${Na('<svg width="45" height="19" viewBox="0 0 45 19" fill="none" xmlns="http://www.w3.org/2000/svg">\n            <rect width="45" height="19" rx="9.5" fill="#FBC45A"/>\n            <path d="M13.58 9.704C14.052 9.792 14.44 10.028 14.744 10.412C15.048 10.796 15.2 11.236 15.2 11.732C15.2 12.18 15.088 12.576 14.864 12.92C14.648 13.256 14.332 13.52 13.916 13.712C13.5 13.904 13.008 14 12.44 14H8.828V5.624H12.284C12.852 5.624 13.34 5.716 13.748 5.9C14.164 6.084 14.476 6.34 14.684 6.668C14.9 6.996 15.008 7.368 15.008 7.784C15.008 8.272 14.876 8.68 14.612 9.008C14.356 9.336 14.012 9.568 13.58 9.704ZM10.508 9.08H12.044C12.444 9.08 12.752 8.992 12.968 8.816C13.184 8.632 13.292 8.372 13.292 8.036C13.292 7.7 13.184 7.44 12.968 7.256C12.752 7.072 12.444 6.98 12.044 6.98H10.508V9.08ZM12.2 12.632C12.608 12.632 12.924 12.536 13.148 12.344C13.38 12.152 13.496 11.88 13.496 11.528C13.496 11.168 13.376 10.888 13.136 10.688C12.896 10.48 12.572 10.376 12.164 10.376H10.508V12.632H12.2ZM18.2189 6.98V9.08H21.0389V10.412H18.2189V12.632H21.3989V14H16.5389V5.612H21.3989V6.98H18.2189ZM28.6257 5.624V6.98H26.3937V14H24.7137V6.98H22.4817V5.624H28.6257ZM34.9874 12.404H31.6514L31.0994 14H29.3354L32.3474 5.612H34.3034L37.3154 14H35.5394L34.9874 12.404ZM34.5314 11.06L33.3194 7.556L32.1074 11.06H34.5314Z" fill="#050505"/>\n        </svg>\n        ',i,s)}
+        </div>
+        ${Za(this.CLOSE_ID,"cursor: pointer !important;")}
+      </div>
+
+      <span class="allchat-modal-body" style="color:#a0a0a0; margin-top:6px;">
+        Teleparty All Chat is a beta feature that allows viewers to engage with each other by leaving short comments on videos they watch.
+      </span>
+
+      <div class="allchat-scrollbox" style="
+        display:flex; flex-direction:column; background-color:#282828; padding:16px; margin-top:20px;
+        flex:1 1 auto; overflow-y:auto; border-radius:8px;
+      ">
+        <img style="margin-bottom:20px; max-width:100%; height:auto;" src="${chrome.runtime.getURL("img/allchat_comment.png")}" />
+
+        <span class="allchat-modal-subheader">How do I turn this feature on/off?</span>
+        <span class="allchat-modal-body">
+          To disable All Chat, press the ${Qa("","width: 26px; height: 26px; transform: translateY(25%);")} button on the top right of the video.
+          To enable it, press ${Wa("","width: 26px; height: 26px; transform: translateY(25%);")}.
+        </span>
+
+        <span class="allchat-modal-subheader" style="margin-top:40px; margin-bottom:10px">How do I add a comment to the video?</span>
+        <span class="allchat-modal-body">
+          To add comments to the video, sign in to teleparty and press the ${Ya("","width: 26px; height: 26px; transform: translateY(25%);")} button on the top right of the video.
+        </span>
+
+        <span class="allchat-modal-subheader" style="margin-top:40px; margin-bottom:10px">Who sees these comments?</span>
+        <span class="allchat-modal-body">
+          Comments are shown to <span style="font-weight:700">all Teleparty users</span>. This chat is global unlike the typical Teleparty chat.
+        </span>
+
+        <span class="allchat-modal-subheader" style="margin-top:40px; margin-bottom:10px">Will I see comments when I'm not in a party?</span>
+        <span class="allchat-modal-body">
+          Yes, comments are shown whenever allchat is enabled, including when you are not in a party. By default, allchat is turned off.
+        </span>
+
+        <span class="allchat-modal-subheader" style="margin-top:40px; margin-bottom:10px">When will my comments show up for other users?</span>
+        <span class="allchat-modal-body">
+          Comments will show up for other users after about a minute.
+        </span>
+      </div>
+
+      <div style="
+        position:absolute; left:0; right:0; bottom:0;
+        display:flex; flex-direction:row; gap:10px; align-items:stretch;
+        padding:6px; background-color:rgba(0,0,0,0.9);
+        border-top:1px solid rgba(255,255,255,0.08);
+      ">
+        <span id="${this.TOGGLE_ID}" class="allchat-toggle-btn ${n}">${e}</span>
+        <span id="${this.CONTINUE_ID}" class="gradient-200-button" style="
+          flex:1 1 0; display:inline-flex; align-items:center; justify-content:center; white-space:nowrap;
+        ">Continue</span>
+      </div>
+    </div>

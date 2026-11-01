@@ -1,13 +1,3 @@
-# Teleparty analysis artifacts (DO NOT SHIP)
-original/
-production-extension/
-patched-extension/
-mod/
-pretty/
-unpacked/
-extracted/
-tools/
-
 # Dependencies
 node_modules/
 

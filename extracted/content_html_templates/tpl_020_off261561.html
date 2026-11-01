@@ -1,0 +1,59 @@
+<!-- source offset 261561, length 4379 -->
+
+        <div id="tp-allchat-chatbox" style="display: flex; flex-direction: column; width: 100%; background-color: black; align-items: flex-end; padding: 12px 20px;">
+            <div class="allchat-chatbox-container" ${t.containerStyling?`style="${t.containerStyling}"`:""}>
+                ${e="tp-allchat-logo",Na('\n        <svg width="33" height="33" viewBox="0 0 33 33" fill="none" xmlns="http://www.w3.org/2000/svg">\n            <mask id="mask0_1785_33205" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="33" height="33">\n            <path d="M19.796 7.45659V0.85791H0V7.45659H6.59868V25.6079H13.1974V7.45659H19.796Z" fill="#EF3E3A"/>\n            <path d="M23.9243 9.10791C18.9109 9.10791 14.8487 13.1702 14.8487 18.1836V32.2066H21.4474V26.9158C22.2334 27.1403 23.0657 27.2592 23.9243 27.2592C28.9378 27.2592 33 23.197 33 18.1836C33 13.1702 28.9311 9.10791 23.9243 9.10791ZM23.9243 20.6539C22.557 20.6539 21.4474 19.5443 21.4474 18.177C21.4474 16.8097 22.557 15.7 23.9243 15.7C25.2916 15.7 26.4013 16.8097 26.4013 18.177C26.3947 19.5509 25.2916 20.6539 23.9243 20.6539Z" fill="#EF3E3A"/>\n            </mask>\n            <g mask="url(#mask0_1785_33205)">\n            <rect width="33" height="33" fill="url(#paint0_linear_1785_33205)"/>\n            </g>\n            <defs>\n            <linearGradient id="paint0_linear_1785_33205" x1="0" y1="0" x2="37.984" y2="7.39309" gradientUnits="userSpaceOnUse">\n            <stop stop-color="#E34248"/>\n            <stop offset="1" stop-color="#9E55A0"/>\n            </linearGradient>\n            </defs>\n        </svg>\n    ',e,n)}
+                ${t.videoControlProps.shouldRender?'<div id="tp-allchat-chatbox-controls-container" style="display: flex; width: 56px; height: 44px; justify-content: center;"></div>':""}
+                <div style="display:flex; align-items:center; position:relative; flex-grow:1">
+                    <div class="tp-chatbox-input-wrapper" style="flex-grow:1; position:relative;">
+                        <input
+                        id="tp-allchat-chatbox-input"
+                        value="${t.curComment}"
+                        type="text"
+                        class="allchat-chatbox-input"
+                        placeholder="Add your comment here"
+                        style="flex-grow:1; padding-left:12px;"
+                        >
+
+                        <div class="tp-input-right-rail">
+                            <div id="tp-flair-row" class="tp-flair-row"></div>
+                            <span id="tp-allchat-chatbox-length" class="allchat-chatbox-length">
+                                ${t.curComment.length}/120
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-direction: row">
+                    <span
+                        id="tp-allchat-cancel-btn"
+                        class="allchat-chatbox-button rounded-container gray-border"
+                        style="height: 52px; display: flex; align-items: center; margin-right: 6px"
+                    >
+                        Cancel
+                    </span>
+                    
+                    <span
+                        id="tp-allchat-post-btn"
+                        class="allchat-chatbox-button rounded-container gradient-border"
+                        style="font-weight:600; height: 52px; display: flex; align-items: center;"
+                    >
+                        <span class="gradient-200-text">Post</span>
+                    </span>
+                </div>
+                <div id="tp-user-identity" style="margin-left:16px;"></div>
+                ${Ga("allchat-chatbox-open-help","cursor: pointer !important; width: 33px; height: 33px;")}
+                
+                <div id="tp-allchat-message-box" class="allchat-message-box"></div>
+            </div>
+            <a
+                style="font-size: 12px; color: gray; margin-top: 4px; cursor: pointer; padding-bottom: 4px;"
+                class="allchat-underline-text"
+                id="tp-leave-feedback-text"
+                href="https://docs.google.com/forms/d/e/1FAIpQLSdkFbtU1o-vw9LXVG4STZiryRbrcF0j445c3b1EfwNoJYUT7w/viewform?usp=dialog"
+                target="_blank"
+            >
+                Leave Feedback
+            </a>
+        </div>
+    
