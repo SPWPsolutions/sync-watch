@@ -9,7 +9,7 @@ Watch Netflix, Crunchyroll, Disney+, Hulu, Max, Prime Video, Paramount+, and You
 ## Repository Structure
 
 ```text
-sync-watch/
+woopers-party/
 ├── extension/              # Clean-room Manifest V3 Chrome/Edge/Brave extension
 │   ├── manifest.json
 │   ├── background.js

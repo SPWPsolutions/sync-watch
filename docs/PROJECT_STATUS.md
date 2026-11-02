@@ -1,6 +1,6 @@
 # Party Sync Project Status
 **Last Updated:** 2026-11-01 12:18 PM
-**Session:** sync-watch (Opus 5.5 agents)
+**Session:** Wooper's Party
 
 ---
 
@@ -37,7 +37,7 @@ Built a complete watch party system with web UI + browser extension for Netflix/
 ---
 
 ### 2. Browser Extension (Clean-Room, Ready)
-**Location:** `/Users/cultistsid/Desktop/sync-watch/extension/`
+**Location:** `extension/`
 **Status:** ✅ BUILT, ⏳ NEEDS REAL TESTING
 
 **Platforms:**
@@ -57,7 +57,7 @@ Built a complete watch party system with web UI + browser extension for Netflix/
 ```bash
 1. chrome://extensions
 2. Enable "Developer mode"
-3. Load unpacked: /Users/cultistsid/Desktop/sync-watch/extension/
+3. Load unpacked: extension/
 4. Pin to toolbar
 ```
 
@@ -184,7 +184,7 @@ All code in `/extension/` is **clean-room** (NO Teleparty code copied).
 
 ### Production Deliverables
 ```
-/Users/cultistsid/Desktop/sync-watch/
+woopers-party/
 ├── extension/                    # SHIP THIS - Clean-room browser extension
 │   ├── manifest.json            # MV3, Netflix + Crunchyroll
 │   ├── background.js

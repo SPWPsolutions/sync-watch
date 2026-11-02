@@ -19,8 +19,7 @@ browsers, via a browser extension or a no-install web demo.
 
 - **Web demo:** open `https://pwlive.fyi` in a browser. No install required.
   (When live, `GET https://pwlive.fyi/health` returns `{"ok":true,...}`.)
-- **Extension:** load unpacked from
-  `/Users/cultistsid/Desktop/sync-watch/production-extension` (see §4).
+- **Extension:** load unpacked from the `extension/` directory (see §4).
 
 ---
 
@@ -64,8 +63,7 @@ On-page log, when healthy, shows: `socket open`, a `clock offset …ms` line,
 
 1. Open `chrome://extensions`.
 2. Enable **Developer mode** (top-right).
-3. **Load unpacked** →
-   `/Users/cultistsid/Desktop/sync-watch/production-extension`.
+3. **Load unpacked** → select the `extension/` directory from this repository.
 4. If you have the real Teleparty extension installed, **disable it** while
    testing so two overlays don't collide.
 
