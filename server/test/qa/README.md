@@ -62,7 +62,7 @@ failed (e.g. `not ok 3 - seek + pause propagates guest -> host`).
 
 ## Browser runbook (live UI + GIF documentation)
 
-Prerequisites: a Chrome browser connected to the Claude-in-Chrome extension.
+Prerequisites: a Chrome browser for testing.
 This drives the reference client at the deployment root in two tabs.
 
 1. Open two tabs on `https://<deployment>/` (host + guest). Confirm each logs

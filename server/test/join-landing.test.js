@@ -33,7 +33,7 @@ test('Netflix party link serves the extension landing page', async () => {
   assert.match(res.headers['content-type'], /text\/html/);
   assert.ok(res.body.includes(`href="https://www.netflix.com/watch/80057281?psSession=${room.sessionId}"`));
   assert.match(res.body, /Open on Netflix/);
-  assert.match(res.body, /Party Sync/);
+  assert.match(res.body, /Wooper's Party/);
   assert.match(res.body, /id="install"/);
   assert.ok(res.body.includes('hosted by &lt;b&gt;host&lt;/b&gt;'));
   assert.ok(!res.body.includes('<b>host</b>'));
@@ -55,6 +55,23 @@ test('Netflix room with a malformed videoId falls back to the web app', async ()
   const res = await get(`/join/${room.sessionId}`);
   assert.equal(res.status, 302);
   assert.equal(res.headers.location, `/?session=${room.sessionId}`);
+});
+
+test('Disney+, Hulu, Max, Prime Video, Paramount+, and extension YouTube party links serve extension landing page', async () => {
+  const cases = [
+    { videoId: 'abc-123', videoService: 'disney', serviceDomain: 'www.disneyplus.com', expected: 'https://www.disneyplus.com/play/abc-123' },
+    { videoId: 'hulu-99', videoService: 'hulu', serviceDomain: 'www.hulu.com', expected: 'https://www.hulu.com/watch/hulu-99' },
+    { videoId: 'max-42', videoService: 'max', serviceDomain: 'play.max.com', expected: 'https://play.max.com/video/watch/max-42' },
+    { videoId: 'B08XYZ1234', videoService: 'amazon', serviceDomain: 'www.amazon.com', expected: 'https://www.amazon.com/gp/video/detail/B08XYZ1234' },
+    { videoId: 'pplus-77', videoService: 'paramount', serviceDomain: 'www.paramountplus.com', expected: 'https://www.paramountplus.com/watch/pplus-77' },
+    { videoId: 'dQw4w9WgXcQ', videoService: 'youtube', serviceDomain: 'www.youtube.com', expected: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' },
+  ];
+  for (const c of cases) {
+    const room = store.create(c);
+    const res = await get(`/join/${room.sessionId}`);
+    assert.equal(res.status, 200, `${c.videoService} should return 200 landing page`);
+    assert.ok(res.body.includes(c.expected), `${c.videoService} landing page should link to ${c.expected}`);
+  }
 });
 
 test('web-player parties and unknown ids still redirect to the web app', async () => {

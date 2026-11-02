@@ -65,12 +65,12 @@ const PUBLIC_DIR = process.env.PUBLIC_DIR
   ? path.resolve(process.env.PUBLIC_DIR)
   : path.join(__dirname, '..', 'public');
 
-const EXTENSION_DOWNLOAD_PATH = '/download/party-sync.zip';
+const EXTENSION_DOWNLOAD_PATHS = new Set(['/download/woopers-party.zip', '/download/party-sync.zip']);
 function currentExtensionZip() {
   try {
     const dir = path.join(PUBLIC_DIR, 'downloads');
     return fs.readdirSync(dir)
-      .filter((f) => /^party-sync-[\w.-]+\.zip$/.test(f))
+      .filter((f) => /^(?:woopers-party|party-sync)-[\w.-]+\.zip$/.test(f))
       .sort((a, b) => fs.statSync(path.join(dir, b)).mtimeMs - fs.statSync(path.join(dir, a)).mtimeMs)[0] || null;
   } catch {
     return null;
@@ -102,6 +102,20 @@ const httpServer = http.createServer((req, res) => {
     return json(res, 200, s);
   }
 
+  // Video lookup endpoint (PROTOCOL_SPEC.md §6: GET /video?session=<id>).
+  if (url.pathname === '/video' || url.pathname === '/api/video') {
+    const sid = url.searchParams.get('session') || '';
+    const room = /^[a-f0-9]+$/.test(sid) ? store.get(sid) : null;
+    if (!room) return json(res, 404, { error: 'not_found' });
+    return json(res, 200, {
+      videoService: room.videoService,
+      videoId: room.videoId,
+      videoType: room.videoType,
+      serviceDomain: room.serviceDomain,
+      state: room.state,
+    });
+  }
+
   // Party link: www.teleparty.com/join/<id> equivalent. Serves the demo player with the id prefilled.
   m = url.pathname.match(/^\/join\/([a-f0-9]+)$/);
   if (m) {
@@ -109,14 +123,14 @@ const httpServer = http.createServer((req, res) => {
     const handoff = extensionHandoff(room);
     if (handoff) {
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' });
-      return res.end(renderLanding(room, handoff, { installUrl: INSTALL_URL }));
+      return res.end(renderLanding(room, handoff, { installUrl: INSTALL_URL, publicUrl: PUBLIC_URL }));
     }
     res.writeHead(302, { Location: `/?session=${m[1]}` });
     return res.end();
   }
 
   // Stable extension download link -> the current versioned zip (built by `npm run build:extension`).
-  if (url.pathname === EXTENSION_DOWNLOAD_PATH) {
+  if (EXTENSION_DOWNLOAD_PATHS.has(url.pathname)) {
     const zip = currentExtensionZip();
     if (!zip) return json(res, 404, { error: 'extension_not_built' });
     res.writeHead(302, { Location: `/downloads/${zip}`, 'Cache-Control': 'no-store' });
@@ -127,10 +141,20 @@ const httpServer = http.createServer((req, res) => {
   const file = url.pathname === '/' ? 'index.html' : url.pathname.slice(1);
   const full = path.join(PUBLIC_DIR, path.normalize(file));
   if (full.startsWith(PUBLIC_DIR) && fs.existsSync(full) && fs.statSync(full).isFile()) {
-    const type = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.zip': 'application/zip' }[path.extname(full)] || 'application/octet-stream';
-    const headers = { 'Content-Type': type };
+    const stat = fs.statSync(full);
+    const type = {
+      '.html': 'text/html; charset=utf-8',
+      '.js': 'text/javascript; charset=utf-8',
+      '.css': 'text/css; charset=utf-8',
+      '.svg': 'image/svg+xml',
+      '.png': 'image/png',
+      '.ico': 'image/x-icon',
+      '.zip': 'application/zip',
+    }[path.extname(full)] || 'application/octet-stream';
+    const headers = { 'Content-Type': type, 'Content-Length': stat.size };
     if (type === 'application/zip') headers['Content-Disposition'] = `attachment; filename="${path.basename(full)}"`;
     res.writeHead(200, headers);
+    if (req.method === 'HEAD') return res.end();
     return fs.createReadStream(full).pipe(res);
   }
 
@@ -301,6 +325,9 @@ const handlers = {
 
   // Play / pause / seek. Client: brodadcast -> background -> updateSession.
   updateSession(ws, data = {}, cb, room) {
+    if (room.controlLock === 'true' && ws.userId !== room.hostUserId) {
+      return reply(ws, 'updateSession', { errorMessage: 'Locked Session' }, cb);
+    }
     applyPlayback(room, data);
     const out = {
       ...data,
@@ -315,12 +342,26 @@ const handlers = {
   },
 
   nextEpisode(ws, data = {}, cb, room) {
-    if (data.videoId) room.videoId = data.videoId;
+    if (room.controlLock === 'true' && ws.userId !== room.hostUserId) {
+      return reply(ws, 'nextEpisode', { errorMessage: 'Locked Session' }, cb);
+    }
+    if (data.videoId || data.nextEpisode) room.videoId = data.videoId || data.nextEpisode;
     room.state = 'paused';
     room.lastKnownTime = 0;
     room.lastKnownTimeUpdatedAt = Date.now();
-    broadcast(room, 'jumpToNextEpisode', { ...data, userId: ws.userId }, { except: ws.userId });
+    broadcast(room, 'jumpToNextEpisode', { ...data, videoId: room.videoId, userId: ws.userId }, { except: ws.userId });
     reply(ws, 'nextEpisode', { ok: true }, cb);
+  },
+
+  updatePartySettings(ws, data = {}, cb, room) {
+    if (ws.userId !== room.hostUserId) {
+      return reply(ws, 'updatePartySettings', { errorMessage: 'Only the host can change party settings' }, cb);
+    }
+    if (data.controlLock !== undefined) room.controlLock = String(Boolean(data.controlLock && data.controlLock !== 'false'));
+    if (data.reactionsDisabled !== undefined) room.reactionsDisabled = String(Boolean(data.reactionsDisabled && data.reactionsDisabled !== 'false'));
+    const payload = { controlLock: room.controlLock, reactionsDisabled: room.reactionsDisabled };
+    broadcast(room, 'partySettings', payload);
+    reply(ws, 'updatePartySettings', { ok: true, ...payload }, cb);
   },
 
   sendMessage(ws, data = {}, cb, room) {
@@ -332,7 +373,10 @@ const handlers = {
       permId: member.permId,
       userId: ws.userId,
       userIcon: data.userIcon ?? member.userSettings?.userIcon,
+      userIconFrame: data.userIconFrame ?? member.userSettings?.userIconFrame,
       userNickname: data.userNickname ?? member.userSettings?.userNickname,
+      nameColor: data.nameColor ?? member.userSettings?.nameColor,
+      badge: data.badge ?? member.userSettings?.badge,
       timestamp: Date.now(),
     };
     room.pushMessage(msg);
@@ -361,6 +405,7 @@ const handlers = {
     member.userSettings = { ...member.userSettings, ...(data.userSettings || data) };
     broadcast(room, 'updateSettings', { userId: ws.userId, permId: member.permId, userSettings: member.userSettings });
     pushUserList(room);
+    reply(ws, 'broadcastUserSettings', { ok: true, userSettings: member.userSettings }, cb);
   },
 
   // Re-sync after the client's socket reconnects.
@@ -372,8 +417,21 @@ const handlers = {
     pushUserList(room);
   },
 
+  sendReaction(ws, data = {}, cb, room) {
+    if (room.reactionsDisabled === 'true') {
+      return reply(ws, 'sendReaction', { errorMessage: 'Reactions are disabled' }, cb);
+    }
+    const member = room.members.get(ws.userId);
+    broadcast(room, 'sendReaction', {
+      ...data,
+      userId: ws.userId,
+      userNickname: member?.userSettings?.userNickname,
+      userIcon: member?.userSettings?.userIcon,
+    }, { except: ws.userId });
+    reply(ws, 'sendReaction', { ok: true }, cb);
+  },
+
   // Pure relays.
-  sendReaction: relay('sendReaction'),
   sendGIF: relay('sendGIF'),
   webRTC: relay('webRTC'),
   selectProvider: relay('selectProvider'),

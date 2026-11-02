@@ -3,12 +3,31 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="theme-color" content="#0a0a0a" />
-<title>Party Sync — Watch Together</title>
-<meta name="description" content="Watch videos in perfect sync with friends. Create a party, share the link, press play together." />
+<meta name="theme-color" content="#ef3e3a" />
+<title>Wooper's Party — Watch Together in Sync</title>
+<meta name="description" content="Wooper's Party — Watch Netflix, Crunchyroll, Disney+, Hulu, Max, Prime Video, Paramount+, and YouTube in sync with friends." />
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+<link rel="icon" type="image/png" sizes="128x128" href="/icon128.png" />
+<link rel="shortcut icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Wooper's Party" />
+<meta property="og:title" content="Wooper's Party — Watch Together in Sync" />
+<meta property="og:description" content="Synchronize video playback and add group chat + emoji reactions on Netflix, Crunchyroll, Disney+, Hulu, Max, Prime Video, Paramount+, and YouTube." />
+<meta property="og:url" content="https://watch.pwlive.fyi/" />
+<meta property="og:image" content="https://watch.pwlive.fyi/og-image.png" />
+<meta property="og:image:secure_url" content="https://watch.pwlive.fyi/og-image.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="Wooper's Party — Watch Together in Sync" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Wooper's Party — Watch Together in Sync" />
+<meta name="twitter:description" content="Synchronize video playback and add group chat + emoji reactions on Netflix, Crunchyroll, Disney+, Hulu, Max, Prime Video, Paramount+, and YouTube." />
+<meta name="twitter:image" content="https://watch.pwlive.fyi/og-image.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="/styles.css" />
 <link rel="stylesheet" href="/animations.css" />
 </head>
@@ -20,12 +39,14 @@
     <div class="brand">
       <div class="brand__mark" id="brandMark"></div>
       <div>
-        <div class="brand__name"><span>Party Sync</span></div>
-        <div class="brand__tag">Watch together, in sync</div>
+        <div class="brand__name"><span>Wooper's Party</span></div>
+        <div class="brand__tag">WP · A new way to watch TV together</div>
       </div>
+      <span class="wooper wooper--bounce" title="Wooper the Cat"></span>
     </div>
     <div class="header-actions">
-      <a class="btn btn--ghost" id="downloadExtHeader" href="/download/party-sync.zip" download>Download extension</a>
+      <a class="btn btn--ghost" href="#howitworks">How It Works</a>
+      <a class="btn btn--ghost" id="downloadExtHeader" href="/download/woopers-party.zip" download>Download Wooper's Party</a>
       <span class="conn" id="conn" data-q="off" title="Connection quality">
         <span class="conn__bars"><i></i><i></i><i></i></span>
         <span id="connText">Connecting…</span>
@@ -40,10 +61,11 @@
   <!-- ===== Lobby (no active party) ===== -->
   <section class="lobby enter" id="lobby">
     <!-- Create -->
-    <div class="card glass">
-      <p class="card__eyebrow">Host</p>
-      <h1 class="card__title">Start a watch party</h1>
-      <p class="card__sub">Pick a video, create the party, and share the link. Everyone presses play together.</p>
+    <div class="card glass wooper-perch">
+      <span class="wooper wooper-corner" aria-hidden="true"></span>
+      <p class="card__eyebrow">Host · WP</p>
+      <h1 class="card__title">Start a Wooper's Party</h1>
+      <p class="card__sub">Synchronize video playback and add group chat + emoji reactions. Pick a video, create the party, and share the link.</p>
       <div class="stack">
         <div class="field">
           <label class="field__label" for="src">Video URL (YouTube or direct link; Netflix and Crunchyroll use the extension)</label>
@@ -68,13 +90,14 @@
     </div>
 
     <!-- Join -->
-    <div class="card glass">
+    <div class="card glass wooper-perch">
       <div class="poster">
         <div class="poster__glow"></div>
-        <span id="posterLogo"></span>
+        <span class="wooper wooper--lg wooper--bounce" title="Wooper"></span>
+        <span id="posterLogo" hidden></span>
       </div>
-      <p class="card__eyebrow">Guest</p>
-      <h2 class="card__title" style="font-size:20px">Join a party</h2>
+      <p class="card__eyebrow">Guest · WP</p>
+      <h2 class="card__title" style="font-size:20px">Join a Wooper's Party</h2>
       <p class="card__sub" id="joinSub">Paste an invite link or session ID from your host.</p>
       <div class="stack">
         <div class="field">
@@ -90,23 +113,72 @@
       </div>
     </div>
 
-    <!-- Extension download (Netflix / Crunchyroll) -->
-    <div class="card glass ext-card" id="extension">
+    <!-- Extension download -->
+    <div class="card glass ext-card wooper-perch" id="extension">
+      <span class="wooper wooper-corner" aria-hidden="true"></span>
       <div>
-        <p class="card__eyebrow">Browser extension</p>
-        <h2 class="card__title" style="font-size:20px">Get Party Sync for Netflix and Crunchyroll</h2>
-        <p class="card__sub">Netflix and Crunchyroll play on their own sites. The Party Sync extension keeps everyone in sync there. Works in Chrome, Edge and Brave.</p>
-        <a class="btn btn--primary btn--lg" id="downloadExt" href="/download/party-sync.zip" download>Download extension (.zip)</a>
+        <p class="card__eyebrow">Browser extension · WP</p>
+        <h2 class="card__title" style="font-size:20px">Get Wooper's Party (WP) for Chrome, Edge &amp; Brave</h2>
+        <p class="card__sub">Synchronizes video playback and adds the docked WP group chat sidebar to Netflix, Crunchyroll, Disney+, Hulu, Max, Prime Video, Paramount+, and YouTube.</p>
+        <a class="btn btn--primary btn--lg" id="downloadExt" href="/download/woopers-party.zip" download>Download Wooper's Party (.zip)</a>
       </div>
       <div>
-        <p class="field__label" style="margin:0 0 8px">How to install (it isn't on the Chrome Web Store)</p>
+        <p class="field__label" style="margin:0 0 8px">How to install unpacked in seconds</p>
         <ol class="ext-steps">
-          <li>Unzip the downloaded file. You get a <code>party-sync-…</code> folder.</li>
-          <li>Open <code>chrome://extensions</code> in a new tab.</li>
-          <li>Turn on <b>Developer mode</b> (top right).</li>
-          <li>Click <b>Load unpacked</b> and pick the unzipped <code>party-sync-…</code> folder.</li>
-          <li>Turn off other watch-party extensions such as Teleparty. Both run on Netflix and will get in each other's way.</li>
+          <li>Unzip the downloaded file to get the <code>woopers-party-…</code> folder.</li>
+          <li>Open <code>chrome://extensions</code> and turn on <b>Developer mode</b> (top right).</li>
+          <li>Click <b>Load unpacked</b> and select the unzipped folder.</li>
+          <li>Pin the red <b>WP</b> Wooper icon next to your address bar.</li>
+          <li>Open any show and click the red <b>WP</b> icon → <b>Start the party</b>!</li>
         </ol>
+      </div>
+    </div>
+
+    <!-- How Wooper's Party Works (#howitworks) -->
+    <div class="card glass how-section" id="howitworks">
+      <div class="how-header">
+        <div>
+          <p class="card__eyebrow">Step by Step</p>
+          <h2 class="card__title" style="font-size:22px;margin:0">How Wooper's Party Works</h2>
+        </div>
+        <span class="wooper wooper--lg wooper--bounce" title="Wooper the Cat"></span>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card">
+          <span class="step-num">1</span>
+          <h3>Install Wooper's Party</h3>
+          <p>Download the WP extension above and load it into Chrome, Edge, or Brave.</p>
+        </div>
+        <div class="step-card">
+          <span class="step-num">2</span>
+          <h3>Pin the WP Button</h3>
+          <p>Pin the red <b>WP</b> Wooper icon next to your browser address bar for one-click access.</p>
+        </div>
+        <div class="step-card">
+          <span class="step-num">3</span>
+          <h3>Open a Video</h3>
+          <p>Go to Netflix, Crunchyroll, Disney+, Hulu, Max, Prime Video, Paramount+, or YouTube and play any show.</p>
+        </div>
+        <div class="step-card">
+          <span class="step-num">4</span>
+          <h3>Create a WP Party</h3>
+          <p>Click the red <b>WP</b> icon and press <b>Start the party</b> to launch the docked sidebar.</p>
+        </div>
+        <div class="step-card">
+          <span class="step-num">5</span>
+          <h3>Invite Friends</h3>
+          <p>Share your party URL with friends so they automatically join in HD sync with chat and emoji reactions!</p>
+        </div>
+      </div>
+      <div class="platforms-bar">
+        <span class="platform-pill">Netflix Watch Party</span>
+        <span class="platform-pill">Crunchyroll Watch Party</span>
+        <span class="platform-pill">YouTube Watch Party</span>
+        <span class="platform-pill">Disney+ Watch Party</span>
+        <span class="platform-pill">Max Watch Party</span>
+        <span class="platform-pill">Hulu Watch Party</span>
+        <span class="platform-pill">Prime Video Watch Party</span>
+        <span class="platform-pill">Paramount+ Watch Party</span>
       </div>
     </div>
   </section>

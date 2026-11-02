@@ -23,6 +23,7 @@ class SyncController {
     this.socket = socket;
     this.auth = null;
     this.active = false;
+    this.canControl = true;
     this.selfBuffering = false;
     this.blocked = false;
     this.mutedAutoplay = false;
@@ -178,18 +179,28 @@ class SyncController {
     return stateMatches && drift < TOLERANCE_MS;
   }
 
+  setCanControl(canControl) {
+    this.canControl = Boolean(canControl);
+  }
+
   onLocalEvent() {
     if (!this.active || !this.hasMedia()) return;
     if (performance.now() < this.quietUntil || this.blocked) return;
     if (this.isEcho()) return;
+    if (!this.canControl) {
+      // Host locked playback controls: snap guest back to authoritative party timeline.
+      this.reconcile();
+      return;
+    }
     clearTimeout(this.pushTimer);
     // Debounce so a scrub (many seeked events) or play+seeked collapses into one update.
     this.pushTimer = setTimeout(() => this.pushLocal(), PUSH_DEBOUNCE_MS);
   }
 
   pushLocal() {
-    if (!this.active) return;
+    if (!this.active || !this.canControl) return;
     const v = this.video;
+    const prevAuth = this.auth;
     const update = {
       state: v.paused ? 'paused' : 'playing',
       lastKnownTime: Math.round(v.currentTime * 1000),
@@ -199,7 +210,13 @@ class SyncController {
     this.auth = { ...update };
     this.updateStatus();
     this.emit('local', update);
-    this.socket.request('updateSession', update, { timeout: 5000 }).catch((err) => this.emit('error', err));
+    this.socket.request('updateSession', update, { timeout: 5000 }).catch((err) => {
+      if (/Locked Session/i.test(err?.message || '')) {
+        this.auth = prevAuth;
+        this.reconcile();
+      }
+      this.emit('error', err);
+    });
   }
 
   setBuffering(on) {

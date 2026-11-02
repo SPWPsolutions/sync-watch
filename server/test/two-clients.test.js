@@ -103,3 +103,72 @@ test('two clients sync playback', async () => {
   guest.ws.close();
   late.ws.close();
 });
+
+test('host controlLock, reactions, and custom profile settings', async () => {
+  const host = await client();
+  const guest = await client();
+
+  const created = await host.req('createSession', {
+    videoId: '80057281',
+    videoService: 'netflix',
+    controlLock: true,
+    reactionsDisabled: false,
+    userSettings: { userNickname: 'HostUser', userIcon: '👑', nameColor: '#f472b6', badge: '👑 Host' },
+  });
+  assert.equal(created.controlLock, 'true');
+  assert.equal(created.reactionsDisabled, 'false');
+
+  await guest.req('joinSession', {
+    sessionId: created.sessionId,
+    userSettings: { userNickname: 'GuestUser', userIcon: '🍿', nameColor: '#34d399', badge: '★ VIP' },
+  });
+
+  // Guest attempt to updateSession in locked room is rejected
+  const lockedUpdate = await guest.req('updateSession', { state: 'playing', lastKnownTime: 5000 });
+  assert.equal(lockedUpdate.errorMessage, 'Locked Session');
+
+  // Guest attempt to nextEpisode in locked room is rejected
+  const lockedEp = await guest.req('nextEpisode', { videoId: '80057282', nextEpisode: '80057282' });
+  assert.equal(lockedEp.errorMessage, 'Locked Session');
+
+  // Host updateSession succeeds
+  const hostUpdate = await host.req('updateSession', { state: 'playing', lastKnownTime: 7000 });
+  assert.equal(hostUpdate.ok, true);
+  const guestRecv = await guest.next('updateSession');
+  assert.equal(guestRecv.data.lastKnownTime, 7000);
+
+  // Reactions work when enabled
+  const reactAck = await guest.req('sendReaction', { reactionType: 'fire' });
+  assert.equal(reactAck.ok, true);
+  const hostReact = await host.next('sendReaction');
+  assert.equal(hostReact.data.reactionType, 'fire');
+  assert.equal(hostReact.data.userNickname, 'GuestUser');
+
+  // Host disables reactions live
+  const settingsRes = await host.req('updatePartySettings', { controlLock: false, reactionsDisabled: true });
+  assert.equal(settingsRes.controlLock, 'false');
+  assert.equal(settingsRes.reactionsDisabled, 'true');
+  const guestSettings = await guest.next('partySettings');
+  assert.equal(guestSettings.data.reactionsDisabled, 'true');
+
+  // Reactions are rejected when disabled
+  const blockedReact = await guest.req('sendReaction', { reactionType: 'heart' });
+  assert.equal(blockedReact.errorMessage, 'Reactions are disabled');
+
+  // Live profile update broadcasts userSettings and enriches chat messages
+  await guest.req('broadcastUserSettings', {
+    userSettings: { userNickname: 'UpdatedGuest', userIcon: '🚀', nameColor: '#60a5fa', badge: '⚡ Speed' },
+  });
+  await host.next('updateSettings', (m) => m.data.userSettings.userNickname === 'UpdatedGuest');
+
+  guest.fire('sendMessage', { body: 'styled chat' });
+  const chatMsg = await host.next('sendMessage', (m) => m.data.body === 'styled chat');
+  assert.equal(chatMsg.data.userNickname, 'UpdatedGuest');
+  assert.equal(chatMsg.data.userIcon, '🚀');
+  assert.equal(chatMsg.data.nameColor, '#60a5fa');
+  assert.equal(chatMsg.data.badge, '⚡ Speed');
+
+  host.ws.close();
+  guest.ws.close();
+});
+

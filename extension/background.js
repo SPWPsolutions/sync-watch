@@ -1,7 +1,8 @@
 chrome.runtime.onMessage.addListener((msg, sender) => {
-  if (msg?.type !== 'badge' || !sender.tab) return;
-  chrome.action.setBadgeBackgroundColor({ tabId: sender.tab.id, color: '#6366f1' });
-  chrome.action.setBadgeText({ tabId: sender.tab.id, text: msg.text });
+  if (msg?.type !== 'badge' || !sender.tab?.id) return;
+  const tabId = sender.tab.id;
+  chrome.action.setBadgeBackgroundColor({ tabId, color: '#ef3e3a' }).catch(() => {});
+  chrome.action.setBadgeText({ tabId, text: msg.text }).catch(() => {});
 });
 
 chrome.runtime.onInstalled.addListener(async () => {

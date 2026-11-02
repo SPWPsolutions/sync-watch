@@ -2,40 +2,157 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Party Sync</title>
+  <title>Wooper's Party</title>
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <header><span class="dot"></span>Party Sync</header>
+  <header class="account-bar">
+    <div class="account-left">
+      <div class="avatar-circle" id="headerAvatar">🐱</div>
+      <div class="account-info">
+        <div class="brand-line">
+          <span class="wp-badge">WP</span>
+          <span class="brand-title">Wooper's Party</span>
+          <span class="wooper-sprite" title="Wooper the Cat"></span>
+        </div>
+        <div class="user-line">
+          <span class="star">★</span>
+          <span class="account-name" id="headerName">Guest</span>
+        </div>
+      </div>
+    </div>
+    <button class="gear-btn" id="gearBtn" type="button" title="Profile & Server Settings">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+    </button>
+  </header>
 
-  <section id="unsupported" hidden>
-    <p>Open a title on <b>Netflix</b> or <b>Crunchyroll</b> and start playing it, then open this popup again.</p>
-  </section>
-
-  <section id="idle" hidden>
-    <label>Your name <input id="nickname" maxlength="24" placeholder="Guest"></label>
-    <button id="create" class="primary">Start a party</button>
-    <div class="or">or join one</div>
-    <label>Invite link or party ID <input id="joinInput" placeholder="https://watch.pwlive.fyi/join/…"></label>
-    <button id="join">Join party</button>
-  </section>
-
-  <section id="active" hidden>
-    <p class="status" id="syncStatus"></p>
-    <label>Invite link
-      <span class="row"><input id="partyUrl" readonly><button id="copy" class="small">Copy</button></span>
+  <section id="settingsDrawer" class="settings-drawer" hidden>
+    <label>Nickname <input id="nickname" maxlength="24" placeholder="Guest"></label>
+    <div class="row-2">
+      <label>Avatar
+        <select id="userIcon">
+          <option value="🐻">🐻 Bear</option>
+          <option value="🎬">🎬 Clapper</option>
+          <option value="🍿">🍿 Popcorn</option>
+          <option value="🦊">🦊 Fox</option>
+          <option value="🐱">🐱 Cat</option>
+          <option value="🐼">🐼 Panda</option>
+          <option value="🚀">🚀 Rocket</option>
+          <option value="👾">👾 Alien</option>
+          <option value="⚡">⚡ Bolt</option>
+          <option value="🌟">🌟 Star</option>
+        </select>
+      </label>
+      <label>Badge
+        <select id="badge">
+          <option value="">None</option>
+          <option value="★ VIP">★ VIP</option>
+          <option value="👑 Host">👑 Host</option>
+          <option value="🍿 Critic">🍿 Critic</option>
+          <option value="⚡ Speed">⚡ Speed</option>
+          <option value="🎮 Gamer">🎮 Gamer</option>
+        </select>
+      </label>
+    </div>
+    <label>Color
+      <div id="colorPicker" class="color-row"></div>
     </label>
-    <p class="hint">Friends with Party Sync installed just open this link: it takes them to the same title and joins the party.</p>
-    <ul id="members"></ul>
-    <button id="leave" class="danger">Leave party</button>
+    <label>Server URL <input id="serverUrl" spellcheck="false"></label>
   </section>
 
-  <p id="error" role="alert" hidden></p>
+  <main class="content">
+    <section id="unsupported" hidden>
+      <h2>Select a streaming service</h2>
+      <p class="sub">Open a title on any supported platform and start playing it:</p>
+      <div class="service-grid">
+        <a href="https://www.netflix.com" target="_blank" rel="noreferrer">Netflix</a>
+        <a href="https://www.crunchyroll.com" target="_blank" rel="noreferrer">Crunchyroll</a>
+        <a href="https://www.disneyplus.com" target="_blank" rel="noreferrer">Disney+</a>
+        <a href="https://www.hulu.com" target="_blank" rel="noreferrer">Hulu</a>
+        <a href="https://play.max.com" target="_blank" rel="noreferrer">Max</a>
+        <a href="https://www.amazon.com/gp/video/storefront" target="_blank" rel="noreferrer">Prime Video</a>
+        <a href="https://www.paramountplus.com" target="_blank" rel="noreferrer">Paramount+</a>
+        <a href="https://www.youtube.com" target="_blank" rel="noreferrer">YouTube</a>
+      </div>
+    </section>
 
-  <details>
-    <summary>Settings</summary>
-    <label>Server <input id="serverUrl" spellcheck="false"></label>
-  </details>
+    <section id="idle" hidden>
+      <div class="section-head">
+        <h2>Create a Wooper's Party</h2>
+        <span class="wooper-sprite" aria-hidden="true"></span>
+      </div>
+
+      <details class="party-settings" open>
+        <summary>
+          <span>Party Settings</span>
+          <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </summary>
+        <div class="settings-body">
+          <label class="switch-row">
+            <span>Only I have control</span>
+            <input type="checkbox" id="controlLock" class="switch-input">
+            <span class="switch-slider"></span>
+          </label>
+          <label class="switch-row">
+            <span>Disable reactions for party</span>
+            <input type="checkbox" id="reactionsDisabled" class="switch-input">
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+      </details>
+
+      <button id="create" class="cta-gradient">Start the party</button>
+
+      <p class="helper-note">
+        Share your party invite link with friends — or paste an existing invite link below to join:
+      </p>
+
+      <div class="join-row">
+        <input id="joinInput" placeholder="Paste invite link or party ID…">
+        <button id="join" class="join-btn">Join</button>
+      </div>
+    </section>
+
+    <section id="active" hidden>
+      <h2>Party Management</h2>
+
+      <label class="switch-row">
+        <span>Show Chat Sidebar</span>
+        <input type="checkbox" id="showChatToggle" class="switch-input" checked>
+        <span class="switch-slider"></span>
+      </label>
+
+      <div id="hostControls" class="host-controls" hidden>
+        <label class="switch-row">
+          <span>Only I have control</span>
+          <input type="checkbox" id="activeControlLock" class="switch-input">
+          <span class="switch-slider"></span>
+        </label>
+        <label class="switch-row">
+          <span>Disable reactions for party</span>
+          <input type="checkbox" id="activeReactionsDisabled" class="switch-input">
+          <span class="switch-slider"></span>
+        </label>
+      </div>
+
+      <p class="share-copy">
+        Share the URL below so others can join the party. The recipient(s) should navigate to this URL and then click on the red <b class="tp-inline">WP</b> icon to join.
+      </p>
+
+      <div class="url-copy-row">
+        <input id="partyUrl" readonly>
+        <button id="copy" class="copy-icon-btn" title="Copy URL">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        </button>
+      </div>
+
+      <button id="leave" class="disconnect-btn">Disconnect</button>
+      <p class="status-line" id="syncStatus"></p>
+      <ul id="members" class="members-list" hidden></ul>
+    </section>
+
+    <p id="error" role="alert" hidden></p>
+  </main>
 
   <script src="popup.js"></script>
 </body>

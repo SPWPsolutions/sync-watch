@@ -130,25 +130,25 @@ Manifest changes: `key`, `update_url` and `_metadata/` are dropped so it loads a
 
 **Auth:** the anonymous party flow needs no Firebase. Logged-in features (account, premium-gated UI, icons synced to an account) still call `teleparty-mobile.firebaseapp.com` directly. Options:
 1. Leave them alone. Anonymous parties work.
-2. Self-host Firebase (done — see [Firebase authentication](#firebase-authentication)): swap the `apiKey/authDomain/projectId/appId` config in `background_service_bundled.js` for the `wplive-prod` values in `public/firebase-config.js`. The server already verifies the resulting ID tokens in `authenticateUser`.
+2. Self-host Firebase (see [Firebase authentication](#firebase-authentication)): swap the `apiKey/authDomain/projectId/appId` config in `background_service_bundled.js` for your Firebase project values in `public/firebase-config.js`. The server already verifies the resulting ID tokens in `authenticateUser`.
 3. Replace with your own OIDC (for example Authelia or Keycloak). This is the most work, because the popup's React sign-in flow is wired to the Firebase SDK.
 
 ## Firebase authentication
 
-The watch-party identity layer runs on Firebase project **`wplive-prod`** (project number `4793179589`, GCIP / Identity Platform tier). Anonymous parties keep working with no changes; Firebase only adds a verified account identity on top.
+The watch-party identity layer can optionally run on a Firebase project (GCIP / Identity Platform tier). Anonymous parties work with no changes; Firebase only adds a verified account identity on top.
 
-### What is provisioned
+### What needs to be provisioned
 
 | Piece | Value / location |
 |---|---|
-| Project | `wplive-prod` |
-| Web API key | `AIzaSyBsS8sFeOtFcE-QhRsct16KI-n73QkI02I` (public identifier, safe to ship) |
-| Auth domain | `wplive-prod.firebaseapp.com` |
-| Web app id | `1:4793179589:web:ea7df133928bc47a23ffac` (`wplive-web`) |
+| Project | `your-project-id` |
+| Web API key | Your Firebase web API key (public identifier, safe to ship) |
+| Auth domain | `your-project-id.firebaseapp.com` |
+| Web app id | Your Firebase web app ID |
 | Client config | `public/firebase-config.js` (committed; web keys are not secrets) |
 | Admin credential | `secrets/firebase-admin-key.json` (**gitignored** — service-account private key, server-only) |
-| Sign-in providers | Email/Password **enabled**; Google **pending** (manual step below) |
-| Authorized domains | `localhost`, `wplive-prod.firebaseapp.com`, `wplive-prod.web.app`, `pwlive.fyi`, `www.pwlive.fyi` |
+| Sign-in providers | Email/Password (enable in Firebase console) |
+| Authorized domains | Add your domains in Firebase console (Authentication → Settings) |
 
 ### How the auth flow works
 
@@ -185,7 +185,7 @@ Google sign-in needs an OAuth 2.0 web client, which cannot be minted from the CL
 
 - **Admin key is god-mode.** `secrets/firebase-admin-key.json` bypasses all rules. Keep it gitignored, `chmod 600`, out of images and logs. Rotate with `gcloud iam service-accounts keys create/delete` if it leaks.
 - **Web API key is not a secret** — it only identifies the project. Abuse is contained by the authorized-domain allowlist (above) and, optionally, Firebase App Check.
-- **Firestore:** not provisioned (the server keeps rooms in-memory; token verification does not need it). If you later add per-user data, create a DB (`gcloud firestore databases create --location=nam5 --project wplive-prod`) and ship **deny-by-default** rules — `allow read, write: if request.auth != null && request.auth.uid == resource.id;` — never leave it in test/open mode.
+- **Firestore:** not provisioned (the server keeps rooms in-memory; token verification does not need it). If you later add per-user data, create a DB (`gcloud firestore databases create --location=nam5 --project YOUR-PROJECT-ID`) and ship **deny-by-default** rules — `allow read, write: if request.auth != null && request.auth.uid == resource.id;` — never leave it in test/open mode.
 - **Require verified email** before granting premium features: check `ws.auth.emailVerified` server-side.
 - **Trust the server, not the client:** `permId`/identity decisions use the verified `uid` from `verifyIdToken`, never a client-supplied id.
 

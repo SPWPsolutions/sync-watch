@@ -172,7 +172,7 @@ async function rejectNonMedia(url, handoffBox) {
   const c = classifyUrl(url);
   if (c.kind === 'extension') {
     if (handoffBox) showHandoff(handoffBox, c, { role: 'host' });
-    return handoffBox ? '' : `${c.name} plays on ${c.name} with the Party Sync extension, not in this player. Leave this party and start one from the extension.`;
+    return handoffBox ? '' : `${c.name} plays on ${c.name} with the Wooper's Party extension, not in this player. Leave this party and start one from the extension.`;
   }
   if (c.kind === 'unsupported') return `${c.name} links can’t be played here. Use a YouTube link or a direct link to an MP4 or WebM file.`;
   if (c.kind === 'page') return NOT_MEDIA;
@@ -180,25 +180,25 @@ async function rejectNonMedia(url, handoffBox) {
   return null;
 }
 
-const EXTENSION_DOWNLOAD_URL = '/download/party-sync.zip';
+const EXTENSION_DOWNLOAD_URL = '/download/woopers-party.zip';
 // A function, not a constant: each panel needs its own link node.
 const installSteps = () => [
-  [h('a', { href: EXTENSION_DOWNLOAD_URL, download: true }, 'Download the extension'), ' and unzip it.'],
+  [h('a', { href: EXTENSION_DOWNLOAD_URL, download: true }, "Download Wooper's Party"), ' and unzip it.'],
   'Open chrome://extensions and turn on Developer mode.',
-  'Click Load unpacked and choose the unzipped party-sync folder.',
+  'Click Load unpacked and choose the unzipped woopers-party folder.',
   'Turn off other watch-party extensions such as Teleparty. Both run on Netflix.',
 ];
 function handoffPanel(svc, { sessionId = null, role }) {
   const href = svc.videoId ? svc.watchUrl(svc.videoId, sessionId) : svc.homeUrl;
   const host = role === 'host';
   const steps = host
-    ? ['Install the Party Sync browser extension.', `Open the title on ${svc.name} and start playing it.`, 'Click the Party Sync icon in your toolbar, then Start a party.', 'Copy the invite link it gives you and send it to your friends.']
-    : ['Install the Party Sync browser extension.', `Press Open on ${svc.name}.`, 'Party Sync joins the party by itself once the title loads.'];
+    ? ["Install the Wooper's Party browser extension.", `Open the title on ${svc.name} and start playing it.`, 'Click the red WP icon in your toolbar, then Start the party.', 'Copy the invite link it gives you and send it to your friends.']
+    : ["Install the Wooper's Party browser extension.", `Press Open on ${svc.name}.`, "Wooper's Party joins the party by itself once the title loads."];
   return [
     h('strong', { class: 'handoff__title' }, host ? `${svc.name} plays on ${svc.name}` : `This party is watching on ${svc.name}`),
-    h('p', { class: 'handoff__text' }, `${svc.name} can’t play inside this page. Everyone watches on their own ${svc.name} account and Party Sync keeps play, pause and seeking in sync.`),
+    h('p', { class: 'handoff__text' }, `${svc.name} can’t play inside this page. Everyone watches on their own ${svc.name} account and Wooper's Party keeps play, pause and seeking in sync.`),
     h('ol', { class: 'handoff__steps' }, steps.map((t) => h('li', {}, t))),
-    h('details', { class: 'handoff__install' }, h('summary', {}, 'How to install Party Sync'), h('ol', {}, installSteps().map((t) => h('li', {}, t)))),
+    h('details', { class: 'handoff__install' }, h('summary', {}, "How to install Wooper's Party"), h('ol', {}, installSteps().map((t) => h('li', {}, t)))),
     h('a', { class: 'btn btn--primary btn--block', href, ...(host ? { target: '_blank', rel: 'noopener noreferrer' } : {}) }, `Open on ${svc.name}`),
   ];
 }
@@ -224,7 +224,7 @@ function showView(view) {
   el.lobby.classList.toggle('hidden', view !== 'lobby');
   el.party.classList.toggle('hidden', view !== 'party');
   document.body.dataset.view = view;
-  if (view !== 'party') document.title = 'Party Sync — Watch together';
+  if (view !== 'party') document.title = "Wooper's Party — Watch Together in Sync";
 }
 
 // ====================================================================== connection indicator
@@ -265,7 +265,7 @@ function renderSrcBadge() {
   if (!url) { el.srcBadge.textContent = ''; return; }
   const c = src?.videoService === 'html5' ? classifyUrl(url) : null;
   el.srcBadge.textContent = src?.videoService === 'youtube' ? 'YouTube video detected'
-    : c?.kind === 'extension' ? `${c.name} link: plays on ${c.name} with the Party Sync extension`
+    : c?.kind === 'extension' ? `${c.name} link: plays on ${c.name} with the Wooper's Party extension`
     : c?.kind === 'unsupported' ? `${c.name} can’t be played in this player`
     : c?.kind === 'page' ? 'This looks like a web page, not a video file'
     : src ? 'Direct video link' : 'Enter a full link starting with https://';
@@ -775,7 +775,7 @@ function updateBadges() {
   el.chatBadge.textContent = text;
   el.chatBadge.classList.toggle('hidden', state.unread === 0);
   el.chatBadge.setAttribute('aria-label', `${state.unread} unread`);
-  if (state.session) document.title = `${state.unread ? `(${state.unread}) ` : ''}Party Sync · Watching`;
+  if (state.session) document.title = `${state.unread ? `(${state.unread}) ` : ''}Wooper's Party · Watching`;
 }
 document.addEventListener('visibilitychange', () => chatVisible() && clearUnread());
 
@@ -819,7 +819,7 @@ for (const t of document.querySelectorAll('.tab')) t.addEventListener('click', (
 
 // ====================================================================== invite / share
 function renderShareRow(link) {
-  const text = 'Watch with me on Party Sync';
+  const text = "Watch with me on Wooper's Party";
   const items = [
     { icon: 'twitter', label: 'Share on X', href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(link)}` },
     { icon: 'facebook', label: 'Share on Facebook', href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}` },

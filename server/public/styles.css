@@ -7,28 +7,28 @@
    ========================================================================== */
 
 :root {
-  /* Brand */
-  --tp-red: #7c5cff;
-  --tp-red-2: #7c5cff;
-  --tp-red-3: #6d4dff;
-  --tp-purple: #36e0c0;
-  --tp-gradient: linear-gradient(135deg, #7c5cff 0%, #5b8cff 48%, #36e0c0 100%);
-  --tp-gradient-flat: linear-gradient(101deg, #7c5cff, #36e0c0);
+  /* Brand — Teleparty Red theme for Wooper's Party */
+  --tp-red: #ef3e3a;
+  --tp-red-2: #ea0f0a;
+  --tp-red-3: #dc4046;
+  --tp-purple: #9e55a0;
+  --tp-gradient: linear-gradient(135deg, #ef3e3a 0%, #e34248 48%, #9e55a0 100%);
+  --tp-gradient-flat: linear-gradient(101deg, #ef3e3a, #c83771);
 
   /* Accents */
-  --accent-blue: #4da9ff;
+  --accent-blue: #ff626f;
   --accent-green: #24d154;
   --accent-orange: #ff8d4c;
 
   /* Dark surfaces */
-  --bg-0: #0a0a0a;
-  --bg-1: #121214;
-  --bg-2: #18181b;
-  --surface: rgba(32, 32, 36, 0.72);
+  --bg-0: #0f0f10;
+  --bg-1: #161618;
+  --bg-2: #1c1c1f;
+  --surface: rgba(28, 28, 32, 0.78);
   --surface-solid: #1c1c20;
   --surface-hi: #26262b;
   --border: rgba(255, 255, 255, 0.08);
-  --border-hi: rgba(255, 255, 255, 0.16);
+  --border-hi: rgba(239, 62, 58, 0.35);
 
   /* Text */
   --text: #fafafa;
@@ -40,10 +40,10 @@
   --radius: 14px;
   --radius-lg: 20px;
   --gap: 16px;
-  --shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 8px 30px rgba(124, 92, 255, 0.35);
+  --shadow: 0 10px 40px rgba(0, 0, 0, 0.55);
+  --shadow-glow: 0 8px 30px rgba(239, 62, 58, 0.35);
 
-  --font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font: "Poppins", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
 }
 
@@ -56,12 +56,122 @@ body {
   font-family: var(--font);
   color: var(--text);
   background:
-    radial-gradient(1200px 600px at 15% -10%, rgba(124, 92, 255, 0.18), transparent 60%),
-    radial-gradient(1000px 600px at 90% 0%, rgba(54, 224, 192, 0.16), transparent 55%),
+    radial-gradient(1200px 600px at 15% -10%, rgba(239, 62, 58, 0.22), transparent 60%),
+    radial-gradient(1000px 600px at 90% 0%, rgba(158, 85, 160, 0.18), transparent 55%),
     var(--bg-0);
   background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
   line-height: 1.45;
+}
+
+/* ---- Animated Wooper the Cat Sprites ------------------------------------ */
+.wooper {
+  display: inline-block;
+  width: 44px;
+  height: 44px;
+  margin: -10px 0;
+  background: url("/wooper.svg") 0 0 / 300% 100% no-repeat;
+  image-rendering: pixelated;
+  animation: wooper-idle 2.24s step-end infinite;
+  flex-shrink: 0;
+}
+.wooper--lg {
+  width: 66px;
+  height: 66px;
+  margin: -12px 0;
+}
+.wooper--bounce {
+  animation: wooper-idle 2.24s step-end infinite, wooper-hop 3.2s ease-in-out infinite;
+}
+.wooper-perch {
+  position: relative;
+}
+.wooper-corner {
+  position: absolute;
+  top: -30px;
+  right: 18px;
+  pointer-events: none;
+}
+@keyframes wooper-idle {
+  0% { background-position-x: 0%; }
+  35.71% { background-position-x: 50%; }
+  50% { background-position-x: 0%; }
+  85.71% { background-position-x: 100%; }
+  92.86% { background-position-x: 0%; }
+}
+@keyframes wooper-hop {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+/* ---- How It Works & Platforms Section (#howitworks) --------------------- */
+.how-section {
+  grid-column: 1 / -1;
+  margin-top: 8px;
+}
+.how-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-top: 12px;
+}
+.step-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  position: relative;
+  transition: border-color .2s, transform .2s;
+}
+.step-card:hover {
+  border-color: var(--border-hi);
+  transform: translateY(-2px);
+}
+.step-num {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--tp-gradient);
+  color: #fff;
+  font-weight: 800;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+.step-card h3 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  color: var(--text);
+}
+.step-card p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.platforms-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.platform-pill {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  background: rgba(239, 62, 58, 0.12);
+  border: 1px solid rgba(239, 62, 58, 0.35);
+  color: #fff;
 }
 
 a { color: var(--accent-blue); text-decoration: none; }

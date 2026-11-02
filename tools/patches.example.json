@@ -1,6 +1,0 @@
-[
-  { "files": "popup_react_bundled.js", "find": "Create a Teleparty", "replace": "Create a Watch Party", "expect": 1 },
-  { "files": "popup_react_bundled.js", "find": "Enjoying Teleparty?", "replace": "Enjoying the extension?", "expect": 1 },
-  { "files": "popup_react.html", "find": "<title>Teleparty</title>", "replace": "<title>My Party</title>", "expect": 1 },
-  { "files": "_locales/en/messages.json", "find": "Netflix Party is now Teleparty", "replace": "My Party (custom build)", "expect": 1 }
-]

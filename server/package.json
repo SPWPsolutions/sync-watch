@@ -11,7 +11,6 @@
     "qa": "node --test test/qa/chrome-qa.test.js",
     "qa:live": "QA_TARGET=https://watch-party-pw57bakb5a-uc.a.run.app node --test test/qa/chrome-qa.test.js",
     "start": "node src/server.js",
-    "patch-extension": "node tools/patch-extension.js",
     "build:extension": "node tools/build-extension-zip.js"
   },
   "keywords": [],

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Party Sync",
-  "version": "1.0.0",
-  "description": "Watch Netflix and Crunchyroll in sync with friends. Everyone uses their own account.",
+  "name": "Wooper's Party",
+  "version": "1.2.0",
+  "description": "Wooper's Party — Watch Netflix, Crunchyroll, Disney+, Hulu, Max, Prime Video, Paramount+, and YouTube in sync with friends.",
   "minimum_chrome_version": "111",
   "action": {
     "default_popup": "popup/popup.html",
@@ -26,13 +26,29 @@
   "host_permissions": [
     "https://www.netflix.com/*",
     "https://www.crunchyroll.com/*",
-    "https://watch.pwlive.fyi/*"
+    "https://www.disneyplus.com/*",
+    "https://www.hulu.com/*",
+    "https://play.max.com/*",
+    "https://www.amazon.com/*",
+    "https://www.primevideo.com/*",
+    "https://www.paramountplus.com/*",
+    "https://www.youtube.com/*",
+    "https://watch.pwlive.fyi/*",
+    "http://localhost:8080/*",
+    "http://127.0.0.1:8080/*"
   ],
   "content_scripts": [
     {
       "matches": [
         "https://www.netflix.com/*",
-        "https://www.crunchyroll.com/*"
+        "https://www.crunchyroll.com/*",
+        "https://www.disneyplus.com/*",
+        "https://www.hulu.com/*",
+        "https://play.max.com/*",
+        "https://www.amazon.com/*",
+        "https://www.primevideo.com/*",
+        "https://www.paramountplus.com/*",
+        "https://www.youtube.com/*"
       ],
       "js": [
         "shared/keyguard.js",
@@ -46,6 +62,26 @@
       ],
       "js": [
         "netflix/injected.js"
+      ],
+      "world": "MAIN",
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://www.disneyplus.com/*"
+      ],
+      "js": [
+        "disney/injected.js"
+      ],
+      "world": "MAIN",
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://www.youtube.com/*"
+      ],
+      "js": [
+        "youtube/injected.js"
       ],
       "world": "MAIN",
       "run_at": "document_start"
@@ -80,7 +116,94 @@
     },
     {
       "matches": [
-        "https://watch.pwlive.fyi/*"
+        "https://www.disneyplus.com/*"
+      ],
+      "js": [
+        "shared/socket.js",
+        "shared/sync.js",
+        "shared/media.js",
+        "shared/party.js",
+        "shared/chat.js",
+        "disney/content.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://www.hulu.com/*"
+      ],
+      "js": [
+        "shared/socket.js",
+        "shared/sync.js",
+        "shared/media.js",
+        "shared/party.js",
+        "shared/chat.js",
+        "hulu/content.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://play.max.com/*"
+      ],
+      "js": [
+        "shared/socket.js",
+        "shared/sync.js",
+        "shared/media.js",
+        "shared/party.js",
+        "shared/chat.js",
+        "max/content.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://www.amazon.com/*",
+        "https://www.primevideo.com/*"
+      ],
+      "js": [
+        "shared/socket.js",
+        "shared/sync.js",
+        "shared/media.js",
+        "shared/party.js",
+        "shared/chat.js",
+        "amazon/content.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://www.paramountplus.com/*"
+      ],
+      "js": [
+        "shared/socket.js",
+        "shared/sync.js",
+        "shared/media.js",
+        "shared/party.js",
+        "shared/chat.js",
+        "paramount/content.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://www.youtube.com/*"
+      ],
+      "js": [
+        "shared/socket.js",
+        "shared/sync.js",
+        "shared/media.js",
+        "shared/party.js",
+        "shared/chat.js",
+        "youtube/content.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://watch.pwlive.fyi/*",
+        "http://localhost:8080/*",
+        "http://127.0.0.1:8080/*"
       ],
       "js": [
         "site/detect.js"

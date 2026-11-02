@@ -9,8 +9,10 @@ function newId(bytes = 8) {
   return crypto.randomBytes(bytes).toString('hex');
 }
 
+const toBoolStr = (v) => String(Boolean(v && v !== 'false'));
+
 class Room {
-  constructor({ sessionId, hostUserId, videoId, videoService, videoType, serviceDomain, videoDuration, reactionsDisabled }) {
+  constructor({ sessionId, hostUserId, videoId, videoService, videoType, serviceDomain, videoDuration, controlLock, reactionsDisabled }) {
     this.sessionId = sessionId;
     this.hostUserId = hostUserId;
     this.videoId = videoId ?? null;
@@ -18,7 +20,8 @@ class Room {
     this.videoType = videoType ?? null;
     this.serviceDomain = serviceDomain ?? null;
     this.videoDuration = videoDuration ?? null;
-    this.reactionsDisabled = String(Boolean(reactionsDisabled));
+    this.controlLock = toBoolStr(controlLock);
+    this.reactionsDisabled = toBoolStr(reactionsDisabled);
     this.createdAt = Date.now();
     // Playback state, matches the client's sessionData fields.
     this.state = 'paused';
@@ -60,6 +63,7 @@ class Room {
       videoType: this.videoType,
       serviceDomain: this.serviceDomain,
       videoDuration: this.videoDuration,
+      controlLock: this.controlLock,
       reactionsDisabled: this.reactionsDisabled,
       messages: this.messages,
       userList: this.userList(),

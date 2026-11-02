@@ -168,6 +168,7 @@ const YT_ERRORS = {
 };
 const SEEK_DETECT_S = 1.2;
 const PLAY_CONFIRM_MS = 2500;
+const PENDING_SEEK_MS = 1500;
 
 class YouTubeMedia {
   constructor(host, emit) {
@@ -182,6 +183,7 @@ class YouTubeMedia {
     this.id = null;
     this.mutedState = false;
     this.last = null;
+    this.pendingSeek = null;
     this.pollTimer = null;
     this.playWaiters = [];
   }
@@ -304,11 +306,24 @@ class YouTubeMedia {
   }
 
   get currentTime() {
-    return this.ready ? this.player.getCurrentTime() || 0 : 0;
+    if (!this.ready) return 0;
+    const actual = this.player.getCurrentTime() || 0;
+    if (this.pendingSeek) {
+      if (performance.now() - this.pendingSeek.at < PENDING_SEEK_MS) {
+        if (Math.abs(actual - this.pendingSeek.target) <= 0.5) {
+          this.pendingSeek = null;
+          return actual;
+        }
+        return this.pendingSeek.target;
+      }
+      this.pendingSeek = null;
+    }
+    return actual;
   }
 
   set currentTime(t) {
     if (!this.ready) return;
+    this.pendingSeek = { target: t, at: performance.now() };
     this.player.seekTo(t, true);
     this.last = { t, at: performance.now() };
     setTimeout(() => this.emit('seeked'), 0);

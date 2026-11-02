@@ -1,9 +1,0 @@
-/* Loaded after popup_global.css. Theme tokens drive most colours. */
-:root {
-  /* --base-red: #ef3e3a;  primary accent (buttons, links, scrollbar) */
-  /* --grad-red: #e34248;  --grad-purple: #9e55a0;  gradient endpoints */
-  /* --base-black: #191919; popup background */
-}
-/* CSS-module classes are injected at runtime into <head> AFTER this file;
-   use !important or higher specificity, e.g.
-   .Aa_hashed_class_from_extracted_popup_css_modules { ... !important } */

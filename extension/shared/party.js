@@ -12,21 +12,32 @@
   // Per-tab, so a reload (e.g. moving to another episode) rejoins the same party.
   const RESUME_KEY = 'partySync.session';
 
+  function defaultDetectVideoId() {
+    if (location.pathname === '/watch' && location.search.includes('v=')) {
+      return new URLSearchParams(location.search).get('v');
+    }
+    const m =
+      location.pathname.match(/\/(?:video\/)?watch\/([A-Za-z0-9_-]+)/) ||
+      location.pathname.match(/\/(?:play|video|shorts)\/([A-Za-z0-9_-]+)/) ||
+      location.pathname.match(/\/(?:gp\/video\/)?detail\/([A-Za-z0-9_-]+)/);
+    return m ? m[1] : null;
+  }
+
   // onSession({ socket, sync, media, snapshot }) runs once per create/join and may return a cleanup fn.
-  NS.runParty = function ({ service, createMedia, onSession }) {
+  NS.runParty = function ({ service, getVideoId = defaultDetectVideoId, createMedia, onSession }) {
     const media = createMedia();
     let socket = null;
     let sync = null;
-    let session = null; // { sessionId, partyUrl, videoId, serverUrl, nickname, permId }
+    let session = null; // { sessionId, partyUrl, videoId, serverUrl, nickname, userIcon, nameColor, badge, controlLock, reactionsDisabled, permId }
     let members = [];
     let syncStatus = 'idle';
     let stopExtras = null;
     const pill = createPill(() => sync?.resync());
 
     function remember() {
-      const { serverUrl, nickname, permId, sessionId, partyUrl } = session;
+      const { serverUrl, nickname, userIcon, nameColor, badge, permId, sessionId, partyUrl } = session;
       try {
-        sessionStorage.setItem(RESUME_KEY, JSON.stringify({ serverUrl, nickname, permId, sessionId, partyUrl }));
+        sessionStorage.setItem(RESUME_KEY, JSON.stringify({ serverUrl, nickname, userIcon, nameColor, badge, permId, sessionId, partyUrl }));
       } catch {}
     }
 
@@ -36,17 +47,34 @@
       } catch {}
     }
 
+    function isHost() {
+      if (!socket?.userId) return false;
+      const me = members.find((m) => m.userId === socket.userId);
+      return !!me?.isHost;
+    }
+
+    function syncControlPermissions() {
+      if (!sync || !session) return;
+      const locked = session.controlLock === true || session.controlLock === 'true';
+      sync.setCanControl(!locked || isHost());
+    }
+
     function startSession(snap) {
       applySnapshot(snap);
       remember();
-      stopExtras = onSession?.({ socket, sync, media, snapshot: snap }) || null;
+      stopExtras = onSession?.({ socket, sync, media, snapshot: snap, session, getUserSettings: userSettings }) || null;
     }
 
-    const userSettings = () => ({ userNickname: session?.nickname || undefined });
+    const userSettings = () => ({
+      userNickname: session?.nickname || undefined,
+      userIcon: session?.userIcon || undefined,
+      nameColor: session?.nameColor || undefined,
+      badge: session?.badge || undefined,
+    });
 
     function setBadge() {
       chrome.runtime.sendMessage({ type: 'badge', text: session ? String(members.length || '') : '' }).catch(() => {});
-      pill.render(session ? { members: members.length, status: syncStatus } : null);
+      pill.render(session ? { members: members.length, status: syncStatus, locked: session.controlLock === 'true' || session.controlLock === true } : null);
     }
 
     function connect(serverUrl) {
@@ -61,6 +89,14 @@
       socket.on('updateSession', (d) => sync.applyRemote(d));
       socket.on('userList', (list) => {
         members = Array.isArray(list) ? list : [];
+        syncControlPermissions();
+        setBadge();
+      });
+      socket.on('partySettings', (d) => {
+        if (!session || !d) return;
+        if (d.controlLock !== undefined) session.controlLock = String(Boolean(d.controlLock && d.controlLock !== 'false'));
+        if (d.reactionsDisabled !== undefined) session.reactionsDisabled = String(Boolean(d.reactionsDisabled && d.reactionsDisabled !== 'false'));
+        syncControlPermissions();
         setBadge();
       });
       socket.on('ready', async ({ reconnected }) => {
@@ -79,6 +115,11 @@
 
     function applySnapshot(snap) {
       members = snap.userList || members;
+      if (session) {
+        if (snap.controlLock !== undefined) session.controlLock = String(Boolean(snap.controlLock && snap.controlLock !== 'false'));
+        if (snap.reactionsDisabled !== undefined) session.reactionsDisabled = String(Boolean(snap.reactionsDisabled && snap.reactionsDisabled !== 'false'));
+      }
+      syncControlPermissions();
       sync.start(snap);
       setBadge();
     }
@@ -97,11 +138,21 @@
       setBadge();
     }
 
-    async function create({ serverUrl, nickname, permId, videoId }) {
+    async function create({ serverUrl, nickname, userIcon, nameColor, badge, controlLock = false, reactionsDisabled = false, permId, videoId }) {
       end();
       const s = connect(serverUrl);
       await s.ready();
-      session = { serverUrl, nickname, permId, videoId };
+      session = {
+        serverUrl,
+        nickname,
+        userIcon,
+        nameColor,
+        badge,
+        controlLock: String(Boolean(controlLock)),
+        reactionsDisabled: String(Boolean(reactionsDisabled)),
+        permId,
+        videoId,
+      };
       const snap = await s.request('createSession', {
         videoId,
         videoService: service,
@@ -111,8 +162,8 @@
         state: media.paused ? 'paused' : 'playing',
         lastKnownTime: Math.round(media.currentTime * 1000),
         lastKnownTimeUpdatedAt: Math.round(s.serverNow()),
-        controlLock: false,
-        reactionsDisabled: false,
+        controlLock: Boolean(controlLock),
+        reactionsDisabled: Boolean(reactionsDisabled),
         permId,
         userSettings: userSettings(),
       });
@@ -121,11 +172,11 @@
       return status();
     }
 
-    async function join({ serverUrl, nickname, permId, sessionId, videoId, partyUrl }) {
+    async function join({ serverUrl, nickname, userIcon, nameColor, badge, permId, sessionId, videoId, partyUrl }) {
       end();
       const s = connect(serverUrl);
       await s.ready();
-      session = { serverUrl, nickname, permId, videoId, sessionId };
+      session = { serverUrl, nickname, userIcon, nameColor, badge, permId, videoId, sessionId };
       try {
         const snap = await s.request('joinSession', { sessionId, permId, userSettings: userSettings() });
         session.partyUrl = snap.partyUrl || partyUrl;
@@ -137,14 +188,54 @@
       }
     }
 
+    async function setPartySettings({ controlLock, reactionsDisabled }) {
+      if (!session || !socket?.isOpen) throw new Error('Not in an active party.');
+      const res = await socket.request('updatePartySettings', { controlLock, reactionsDisabled });
+      session.controlLock = res.controlLock;
+      session.reactionsDisabled = res.reactionsDisabled;
+      syncControlPermissions();
+      setBadge();
+      return status();
+    }
+
+    async function setShowChat({ showChat }) {
+      if (session) session.showChat = Boolean(showChat);
+      NS._activeChat?.setShowChat?.(Boolean(showChat));
+      return status();
+    }
+
+    async function updateProfile({ nickname, userIcon, nameColor, badge }) {
+      if (session) {
+        if (nickname !== undefined) session.nickname = nickname;
+        if (userIcon !== undefined) session.userIcon = userIcon;
+        if (nameColor !== undefined) session.nameColor = nameColor;
+        if (badge !== undefined) session.badge = badge;
+        remember();
+        if (socket?.isOpen) {
+          await socket.request('broadcastUserSettings', { userSettings: userSettings() });
+        }
+      }
+      return status();
+    }
+
     function status() {
       return {
         hasVideo: media.hasVideo(),
         service,
         inParty: !!session?.sessionId,
+        isHost: isHost(),
         sessionId: session?.sessionId ?? null,
         partyUrl: session?.partyUrl ?? null,
-        members: members.map((m) => ({ name: m.userSettings?.userNickname || 'Guest', isHost: !!m.isHost })),
+        showChat: NS._activeChat ? NS._activeChat.isVisible() : session?.showChat !== false,
+        controlLock: session?.controlLock === 'true' || session?.controlLock === true,
+        reactionsDisabled: session?.reactionsDisabled === 'true' || session?.reactionsDisabled === true,
+        members: members.map((m) => ({
+          name: m.userSettings?.userNickname || 'Guest',
+          userIcon: m.userSettings?.userIcon || '',
+          nameColor: m.userSettings?.nameColor || '',
+          badge: m.userSettings?.badge || '',
+          isHost: !!m.isHost,
+        })),
         syncStatus,
         connection: socket?.status ?? 'idle',
       };
@@ -154,7 +245,15 @@
       if (msg?.target !== 'party') return;
       // Every frame receives this; only the one holding the player answers.
       if (!media.hasVideo() && !session) return;
-      const handlers = { status: async () => status(), create, join, leave: async () => (forget(), end(), status()) };
+      const handlers = {
+        status: async () => status(),
+        create,
+        join,
+        setPartySettings,
+        setShowChat,
+        updateProfile,
+        leave: async () => (forget(), end(), status()),
+      };
       const fn = handlers[msg.cmd];
       if (!fn) return;
       fn(msg.args || {}).then(sendResponse, (e) => sendResponse({ error: e.message || String(e) }));
@@ -174,7 +273,7 @@
       resume();
     } else {
       const tryInvite = () => {
-        const videoId = (location.pathname.match(/\/watch\/([A-Za-z0-9]+)/) || [])[1];
+        const videoId = getVideoId();
         if (!videoId) return false;
         try {
           sessionStorage.removeItem(INVITE_KEY);
@@ -205,8 +304,8 @@
   }
 
   async function storedIdentity() {
-    const [{ nickname = '', serverUrl }, local] = await Promise.all([
-      chrome.storage.sync.get(['nickname', 'serverUrl']),
+    const [{ nickname = '', userIcon = '', nameColor = '', badge = '', serverUrl }, local] = await Promise.all([
+      chrome.storage.sync.get(['nickname', 'userIcon', 'nameColor', 'badge', 'serverUrl']),
       chrome.storage.local.get('permId'),
     ]);
     let { permId } = local;
@@ -221,12 +320,12 @@
       u = new URL(DEFAULT_SERVER);
     }
     u.protocol = u.protocol === 'http:' ? 'ws:' : 'wss:';
-    return { nickname, permId, serverUrl: u.origin };
+    return { nickname, userIcon, nameColor, badge, permId, serverUrl: u.origin };
   }
 
   function createPill(onClick) {
     const host = document.createElement('div');
-    host.style.cssText = 'position:fixed;top:12px;right:12px;z-index:2147483647;';
+    host.style.cssText = 'position:fixed;top:12px;left:16px;z-index:2147483647;';
     NS.isolateEvents(host);
     const root = host.attachShadow({ mode: 'closed' });
     root.innerHTML = `<style>
@@ -246,7 +345,8 @@
       render(state) {
         if (!state) return host.remove();
         btn.style.setProperty('--c', COLORS[state.status] || '#9ca3af');
-        root.querySelector('span').textContent = `${state.members} watching · ${LABELS[state.status] || state.status}`;
+        const lockLabel = state.locked ? ' · 🔒' : '';
+        root.querySelector('span').textContent = `${state.members} watching · ${LABELS[state.status] || state.status}${lockLabel}`;
         if (!host.isConnected) place();
       },
     };

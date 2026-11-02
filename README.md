@@ -1,66 +1,75 @@
-# Sync Watch
+# Wooper's Party (`WP`)
 
-Watch Netflix and Crunchyroll in sync with friends. Real-time playback synchronization with chat.
+Watch Netflix, Crunchyroll, Disney+, Hulu, Max, Prime Video, Paramount+, and YouTube in sync with friends. Includes a docked right-hand group chat sidebar, floating emoji reactions, custom avatars/badges/name colors, host playback control lock, and a standalone web player.
 
-## Features
+**Live Production:** https://watch.pwlive.fyi/
 
-- **Netflix & Crunchyroll Support** - Watch together on both platforms
-- **Real-time Sync** - Play, pause, and seek in sync (<1s drift)
-- **Episode Following** - Auto-sync when episodes change
-- **Live Chat** - Chat with your watch party
-- **Web UI** - Also includes standalone web player for YouTube and direct video URLs
+---
 
-## Components
+## Repository Structure
 
-### Browser Extension
-Located in `extension/` - Chrome extension (Manifest V3) for Netflix and Crunchyroll sync.
+```text
+sync-watch/
+├── extension/              # Clean-room Manifest V3 Chrome/Edge/Brave extension
+│   ├── manifest.json
+│   ├── background.js
+│   ├── icons/              # WP & Wooper the Cat toolbar icons and sprite assets
+│   ├── popup/              # Extension popup UI (Create Party & Party Management)
+│   ├── shared/             # Core sync controller, WebSocket client, media facade, docked sidebar
+│   ├── netflix/            # Netflix MAIN + ISOLATED world adapter
+│   ├── crunchyroll/        # Crunchyroll adapter
+│   ├── disney/             # Disney+ MAIN + ISOLATED world adapter
+│   ├── hulu/               # Hulu adapter
+│   ├── max/                # Max adapter
+│   ├── amazon/             # Prime Video adapter
+│   ├── paramount/          # Paramount+ adapter
+│   ├── youtube/            # YouTube MAIN + ISOLATED world adapter
+│   └── site/               # Invite landing page detector
+│
+├── server/                 # Node.js WebSocket sync backend + standalone web app
+│   ├── src/                # WebSocket & REST server, room store, invite landing page
+│   ├── public/             # Web client, Open Graph / iMessage assets, packaged extension zip
+│   ├── test/               # Integration & QA test suites
+│   └── tools/              # Extension packager (build-extension-zip.js) & health monitor
+│
+└── docs/                   # Architecture, protocol, and deployment documentation
+    ├── DEPLOYMENT_SUMMARY.md
+    ├── PRODUCTION_CHECKLIST.md
+    ├── PROJECT_STATUS.md
+    ├── PROTOCOL_SPEC.md
+    ├── STREAMING_INTEGRATION_PATTERNS.md
+    ├── UI_DESIGN_SPEC.md
+    └── USER_GUIDE.md
+```
 
-**Installation:**
-1. Open `chrome://extensions`
-2. Enable "Developer mode"
-3. Click "Load unpacked"
-4. Select the `extension/` folder
-5. Pin to toolbar
+---
 
-### Web Application
-Located in `server/` - Node.js WebSocket server + web client for YouTube/direct videos.
+## Quick Start
 
-**Live at:** https://watch.pwlive.fyi/
+### 1. Browser Extension (`extension/`)
+1. Open `chrome://extensions` in Chrome, Edge, or Brave.
+2. Enable **Developer mode** (top right).
+3. Click **Load unpacked** and select the `extension/` folder.
+4. Pin the red **WP** Wooper icon to your toolbar.
 
-**Local development:**
+### 2. Local Server & Web App (`server/`)
 ```bash
 cd server
 npm install
+npm run build:extension
+npm test
 npm start
 ```
 
-## Architecture
-
-- **Extension:** Chrome MV3, content scripts for Netflix/Crunchyroll
-- **Backend:** Node.js WebSocket server (Cloud Run)
-- **Sync Protocol:** Custom JSON-over-WebSocket (documented in PROTOCOL_SPEC.md)
-- **Web Client:** Vanilla JS, HTML5 video, YouTube IFrame API
-
-## Documentation
-
-- `PROTOCOL_SPEC.md` - WebSocket protocol specification
-- `STREAMING_INTEGRATION_PATTERNS.md` - Platform integration guide
-- `extension/README.md` - Extension implementation details
-- `server/README.md` - Backend setup
-
-## Legal & Compliance
-
-This is a watch-party synchronization tool:
-- ✅ Users stream from their own accounts
-- ✅ No DRM bypass or content protection defeat
-- ✅ No authentication bypass
-- ✅ Only controls play/pause/seek via player APIs
-
-## License
-
-See LICENSE file for details.
-
-## Support
-
-- **Backend:** https://watch.pwlive.fyi/
-- **Health:** https://watch.pwlive.fyi/health
+### 3. Production Deployment (Cloud Run)
+```bash
+cd server
+npm run build:extension
+gcloud builds submit --tag gcr.io/YOUR-PROJECT-ID/watch-party:latest --project=YOUR-PROJECT-ID
+gcloud run deploy watch-party \
+  --image gcr.io/YOUR-PROJECT-ID/watch-party:latest \
+  --region=us-central1 \
+  --project=YOUR-PROJECT-ID \
+  --platform=managed \
+  --allow-unauthenticated
+```

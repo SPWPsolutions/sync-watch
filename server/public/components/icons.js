@@ -4,8 +4,8 @@ window.Icons = (() => {
   const s = (p) =>
     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
   return {
-    // Original mark: a play triangle inside a sync ring (no third-party branding).
-    logo: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v4h-4"/><path d="M10 9.2v5.6l4.8-2.8z" fill="currentColor" stroke="none"/></svg>`,
+    // Wooper's Party WP monogram mark
+    logo: `<svg viewBox="0 0 32 32" fill="none"><text x="16" y="22" text-anchor="middle" fill="#ffffff" font-family="Poppins,Inter,system-ui,sans-serif" font-weight="800" font-size="16" letter-spacing="-0.5">WP</text></svg>`,
     copy: s(`<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>`),
     check: s(`<path d="M20 6 9 17l-5-5"/>`),
     link: s(`<path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/>`),

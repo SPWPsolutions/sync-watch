@@ -16,12 +16,12 @@
 // ---------------------------------------------------------------------------
 
 window.FIREBASE_CONFIG = {
-  apiKey: "AIzaSyBsS8sFeOtFcE-QhRsct16KI-n73QkI02I",
-  authDomain: "wplive-prod.firebaseapp.com",
-  projectId: "wplive-prod",
-  storageBucket: "wplive-prod.firebasestorage.app",
-  messagingSenderId: "4793179589",
-  appId: "1:4793179589:web:ea7df133928bc47a23ffac",
+  apiKey: "PASTE_YOUR_FIREBASE_WEB_API_KEY_HERE",
+  authDomain: "your-project.firebaseapp.com",
+  projectId: "your-project-id",
+  storageBucket: "your-project.firebasestorage.app",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID",
 };
 
 // ---------------------------------------------------------------------------

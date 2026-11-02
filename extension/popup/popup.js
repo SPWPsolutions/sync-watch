@@ -1,14 +1,54 @@
 const DEFAULT_SERVER = 'https://watch.pwlive.fyi';
+const COLORS = ['#f5c56b', '#a5b4fc', '#f472b6', '#34d399', '#60a5fa', '#c084fc', '#f87171', '#2dd4bf'];
+
 const SERVICES = {
-  'www.netflix.com': { name: 'netflix', videoId: /\/watch\/(\d+)/ },
-  'www.crunchyroll.com': { name: 'crunchyroll', videoId: /\/watch\/([A-Z0-9]+)/i },
+  'www.netflix.com': {
+    name: 'netflix',
+    extractId: (u) => (u.pathname.match(/\/watch\/(\d+)/) || [])[1] || null,
+  },
+  'www.crunchyroll.com': {
+    name: 'crunchyroll',
+    extractId: (u) => (u.pathname.match(/\/watch\/([A-Z0-9]+)/i) || [])[1] || null,
+  },
+  'www.disneyplus.com': {
+    name: 'disney',
+    extractId: (u) => (u.pathname.match(/\/(?:play|video)\/([A-Za-z0-9_-]+)/) || [])[1] || null,
+  },
+  'www.hulu.com': {
+    name: 'hulu',
+    extractId: (u) => (u.pathname.match(/\/watch\/([A-Za-z0-9_-]+)/) || [])[1] || null,
+  },
+  'play.max.com': {
+    name: 'max',
+    extractId: (u) => (u.pathname.match(/\/(?:video\/)?watch\/([A-Za-z0-9_-]+)/) || [])[1] || null,
+  },
+  'www.amazon.com': {
+    name: 'amazon',
+    extractId: (u) => (u.pathname.match(/\/(?:gp\/video\/)?detail\/([A-Za-z0-9_-]+)/) || [])[1] || null,
+  },
+  'www.primevideo.com': {
+    name: 'amazon',
+    extractId: (u) => (u.pathname.match(/\/(?:gp\/video\/)?detail\/([A-Za-z0-9_-]+)/) || [])[1] || null,
+  },
+  'www.paramountplus.com': {
+    name: 'paramount',
+    extractId: (u) => (u.pathname.match(/\/(?:watch|video)\/([A-Za-z0-9_-]+)/) || [])[1] || null,
+  },
+  'www.youtube.com': {
+    name: 'youtube',
+    extractId: (u) =>
+      u.pathname === '/watch'
+        ? u.searchParams.get('v')
+        : (u.pathname.match(/^\/shorts\/([\w-]{11})/) || [])[1] || null,
+  },
 };
+
 const STATUS_TEXT = {
   playing: 'In sync · playing',
   paused: 'In sync · paused',
   syncing: 'Syncing…',
   buffering: 'Buffering…',
-  blocked: 'Click the video, then the party badge, to sync',
+  blocked: 'Click the video to allow playback sync',
   loading: 'Waiting for the video to load',
   error: 'The video player reported an error',
 };
@@ -16,6 +56,7 @@ const STATUS_TEXT = {
 const $ = (id) => document.getElementById(id);
 let tab = null;
 let service = null;
+let selectedColor = COLORS[0];
 
 function show(view) {
   for (const id of ['unsupported', 'idle', 'active']) $(id).hidden = id !== view;
@@ -45,6 +86,44 @@ function inviteLink(state) {
   }
 }
 
+function syncHeaderBar() {
+  const nick = $('nickname').value.trim() || 'Guest';
+  const icon = $('userIcon').value || '🐻';
+  $('headerName').textContent = nick;
+  $('headerAvatar').textContent = icon;
+  $('headerAvatar').style.background = selectedColor;
+}
+
+function renderColorPicker() {
+  const wrap = $('colorPicker');
+  wrap.replaceChildren(
+    ...COLORS.map((col) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'swatch';
+      b.style.background = col;
+      b.dataset.selected = String(col === selectedColor);
+      b.onclick = () => {
+        selectedColor = col;
+        renderColorPicker();
+        saveProfileSettings();
+      };
+      return b;
+    })
+  );
+}
+
+async function saveProfileSettings() {
+  syncHeaderBar();
+  const nickname = $('nickname').value.trim();
+  const userIcon = $('userIcon').value;
+  const badge = $('badge').value;
+  const nameColor = selectedColor;
+  const serverUrl = $('serverUrl').value.trim() || DEFAULT_SERVER;
+  await chrome.storage.sync.set({ nickname, userIcon, badge, nameColor, serverUrl });
+  send('updateProfile', { nickname: nickname || 'Guest', userIcon, nameColor, badge }).catch(() => {});
+}
+
 async function send(cmd, args) {
   try {
     const res = await chrome.tabs.sendMessage(tab.id, { target: 'party', cmd, args });
@@ -61,26 +140,41 @@ async function send(cmd, args) {
 
 async function commonArgs() {
   const { permId } = await chrome.storage.local.get('permId');
-  const nickname = $('nickname').value.trim();
+  const nickname = $('nickname').value.trim() || 'Guest';
+  const userIcon = $('userIcon').value || '🐻';
+  const badge = $('badge').value;
+  const nameColor = selectedColor;
+  const controlLock = $('controlLock').checked;
+  const reactionsDisabled = $('reactionsDisabled').checked;
   const serverUrl = $('serverUrl').value.trim() || DEFAULT_SERVER;
-  await chrome.storage.sync.set({ nickname, serverUrl });
-  const videoId = (new URL(tab.url).pathname.match(service.videoId) || [])[1] || null;
-  return { permId, nickname, serverUrl: wsUrl(serverUrl), videoId };
+  await chrome.storage.sync.set({ nickname, userIcon, badge, nameColor, controlLock, reactionsDisabled, serverUrl });
+  const videoId = service.extractId(new URL(tab.url));
+  return {
+    permId,
+    nickname,
+    userIcon,
+    badge,
+    nameColor,
+    controlLock,
+    reactionsDisabled,
+    serverUrl: wsUrl(serverUrl),
+    videoId,
+  };
 }
 
 function render(state) {
   if (!state.inParty) return show('idle');
   show('active');
-  $('syncStatus').textContent = STATUS_TEXT[state.syncStatus] || `Connection: ${state.connection}`;
+  $('syncStatus').textContent = `${state.members?.length || 1} watching · ${STATUS_TEXT[state.syncStatus] || `Connection: ${state.connection}`}`;
   $('partyUrl').value = inviteLink(state);
-  $('members').replaceChildren(
-    ...state.members.map((m) => {
-      const li = document.createElement('li');
-      li.textContent = m.name;
-      if (m.isHost) li.className = 'host';
-      return li;
-    })
-  );
+  $('showChatToggle').checked = state.showChat !== false;
+
+  const hostControls = $('hostControls');
+  hostControls.hidden = !state.isHost;
+  if (state.isHost) {
+    $('activeControlLock').checked = !!state.controlLock;
+    $('activeReactionsDisabled').checked = !!state.reactionsDisabled;
+  }
 }
 
 async function run(button, fn) {
@@ -96,9 +190,32 @@ async function run(button, fn) {
 }
 
 async function init() {
-  const settings = await chrome.storage.sync.get(['nickname', 'serverUrl']);
+  const settings = await chrome.storage.sync.get([
+    'nickname',
+    'userIcon',
+    'badge',
+    'nameColor',
+    'controlLock',
+    'reactionsDisabled',
+    'serverUrl',
+  ]);
   $('nickname').value = settings.nickname || '';
+  if (settings.userIcon) $('userIcon').value = settings.userIcon;
+  if (settings.badge !== undefined) $('badge').value = settings.badge;
+  if (settings.nameColor && COLORS.includes(settings.nameColor)) selectedColor = settings.nameColor;
+  $('controlLock').checked = !!settings.controlLock;
+  $('reactionsDisabled').checked = !!settings.reactionsDisabled;
   $('serverUrl').value = settings.serverUrl || DEFAULT_SERVER;
+  renderColorPicker();
+  syncHeaderBar();
+
+  $('gearBtn').onclick = () => {
+    $('settingsDrawer').hidden = !$('settingsDrawer').hidden;
+  };
+  for (const id of ['nickname', 'userIcon', 'badge', 'serverUrl']) {
+    $(id).addEventListener('change', saveProfileSettings);
+  }
+  $('nickname').addEventListener('input', syncHeaderBar);
 
   [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   service = tab?.url && SERVICES[new URL(tab.url).hostname];
@@ -130,12 +247,33 @@ async function init() {
       else if (res.hostVideoId && mine && res.hostVideoId !== mine) showError('The host is on a different title or episode. Open the same one to stay in sync.');
     });
 
+  $('showChatToggle').onchange = async () => {
+    try {
+      render(await send('setShowChat', { showChat: $('showChatToggle').checked }));
+    } catch (e) {
+      showError(e.message);
+    }
+  };
+
+  const updateHostSettings = async () => {
+    try {
+      const controlLock = $('activeControlLock').checked;
+      const reactionsDisabled = $('activeReactionsDisabled').checked;
+      await chrome.storage.sync.set({ controlLock, reactionsDisabled });
+      render(await send('setPartySettings', { controlLock, reactionsDisabled }));
+    } catch (e) {
+      showError(e.message);
+    }
+  };
+  $('activeControlLock').onchange = updateHostSettings;
+  $('activeReactionsDisabled').onchange = updateHostSettings;
+
   $('leave').onclick = () => run($('leave'), async () => render(await send('leave')));
 
   $('copy').onclick = async () => {
     await navigator.clipboard.writeText($('partyUrl').value);
-    $('copy').textContent = 'Copied';
-    setTimeout(() => ($('copy').textContent = 'Copy'), 1200);
+    $('copy').style.background = '#24d154';
+    setTimeout(() => ($('copy').style.background = ''), 1000);
   };
 
   setInterval(async () => {
