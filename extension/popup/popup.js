@@ -41,7 +41,38 @@ const SERVICES = {
         ? u.searchParams.get('v')
         : (u.pathname.match(/^\/shorts\/([\w-]{11})/) || [])[1] || null,
   },
+  'www.movieboxpro.app': {
+    name: 'movieboxpro',
+    // "movie-<n>", or "tv-<n>" plus "-s<season>e<episode>" when the page was opened by the site's
+    // episode deep link. The content script replaces this with the episode actually playing.
+    extractId: (u) => {
+      const m = u.pathname.match(/^\/(movie|tvshow)\/(\d+)(?:\/|$)/);
+      if (!m) return null;
+      if (m[1] === 'movie') return `movie-${m[2]}`;
+      const season = Number(u.searchParams.get('season'));
+      const episode = Number(u.searchParams.get('episode'));
+      return season > 0 && episode > 0 ? `tv-${m[2]}-s${season}e${episode}` : `tv-${m[2]}`;
+    },
+  },
 };
+
+SERVICES['movieboxpro.app'] = SERVICES['www.movieboxpro.app'];
+
+// Any other http(s) site, once the user turns it on. The party id is the page URL itself.
+const GENERIC = {
+  name: 'generic',
+  extractId: (u) => {
+    const c = new URL(u.href);
+    c.searchParams.delete('psSession');
+    c.hash = '';
+    return c.href;
+  },
+};
+
+// Embedded frames that are clearly not the video player. Requesting access to them would only add
+// noise to the permission prompt.
+const NOT_PLAYER_HOSTS = /(^|\.)(doubleclick\.net|googlesyndication\.com|googleadservices\.com|google\.com|gstatic\.com|recaptcha\.net|amazon-adsystem\.com|adnxs\.com|taboola\.com|outbrain\.com|facebook\.com|twitter\.com|x\.com|disqus\.com|cloudflare\.com|hcaptcha\.com)$/i;
+const MIN_PLAYER_FRAME = { w: 320, h: 180 };
 
 const STATUS_TEXT = {
   playing: 'In sync · playing',
@@ -59,7 +90,7 @@ let service = null;
 let selectedColor = COLORS[0];
 
 function show(view) {
-  for (const id of ['unsupported', 'idle', 'active']) $(id).hidden = id !== view;
+  for (const id of ['unsupported', 'genericOff', 'idle', 'active']) $(id).hidden = id !== view;
 }
 
 function showError(msg) {
@@ -127,7 +158,13 @@ async function saveProfileSettings() {
 async function send(cmd, args) {
   try {
     const res = await chrome.tabs.sendMessage(tab.id, { target: 'party', cmd, args });
-    if (!res) throw new Error('No video found on this page yet. Start playing the title and try again.');
+    if (!res) {
+      throw new Error(
+        service === GENERIC
+          ? 'No video found yet. Press play, then use "Rescan for player" below if the video is embedded.'
+          : 'No video found on this page yet. Start playing the title and try again.'
+      );
+    }
     if (res.error) throw new Error(res.error);
     return res;
   } catch (e) {
@@ -189,6 +226,81 @@ async function run(button, fn) {
   }
 }
 
+// Lists embedded frames big enough to be a player, in every frame the extension can already reach
+// (the top page through activeTab, plus any origins granted earlier).
+async function discoverPlayerOrigins(site) {
+  const listFrames = () =>
+    [...document.querySelectorAll('iframe')].map((f) => {
+      const r = f.getBoundingClientRect();
+      return { src: f.src, w: r.width, h: r.height };
+    });
+  let results = [];
+  try {
+    results = await chrome.scripting.executeScript({ target: { tabId: tab.id, allFrames: true }, func: listFrames });
+  } catch {
+    try {
+      results = await chrome.scripting.executeScript({ target: { tabId: tab.id }, func: listFrames });
+    } catch {
+      return [];
+    }
+  }
+  const origins = new Set();
+  for (const f of results.flatMap((r) => r.result || [])) {
+    let u;
+    try {
+      u = new URL(f.src);
+    } catch {
+      continue;
+    }
+    if (!/^https?:$/.test(u.protocol) || u.origin === site) continue;
+    if (f.w < MIN_PLAYER_FRAME.w || f.h < MIN_PLAYER_FRAME.h) continue;
+    if (NOT_PLAYER_HOSTS.test(u.hostname) || SERVICES[u.hostname]) continue;
+    origins.add(u.origin);
+  }
+  return [...origins];
+}
+
+async function genericSiteOrigins(site) {
+  const { genericSites = {} } = await chrome.storage.local.get('genericSites');
+  if (!genericSites[site]) return null;
+  const granted = await chrome.permissions.contains({ origins: [`${site}/*`] });
+  return granted ? genericSites[site] : null;
+}
+
+async function setUpGeneric(url) {
+  const site = url.origin;
+  $('genericHost').textContent = url.hostname;
+  const enabled = await genericSiteOrigins(site);
+  const found = await discoverPlayerOrigins(site);
+
+  // Both handlers call permissions.request first thing: the browser only shows the prompt while the
+  // click is still being handled, so the frames are found before the click, not after it.
+  const grant = async (origins) => {
+    const ok = await chrome.permissions.request({ origins: origins.map((o) => `${o}/*`) });
+    if (!ok) throw new Error('Access was not granted, so Wooper\'s Party can\'t run on this site.');
+    const res = await chrome.runtime.sendMessage({ type: 'generic-enable', site, origins });
+    if (res?.error) throw new Error(res.error);
+    await chrome.tabs.reload(tab.id);
+    window.close();
+  };
+
+  $('genericEnable').onclick = () => run($('genericEnable'), () => grant([site, ...found]));
+  $('genericRescan').onclick = () =>
+    run($('genericRescan'), async () => {
+      const fresh = found.filter((o) => !enabled?.includes(o));
+      if (!fresh.length) throw new Error('No new embedded player found. Start the video, reopen this popup and try again.');
+      await grant(fresh);
+    });
+  $('genericDisable').onclick = () =>
+    run($('genericDisable'), async () => {
+      await send('leave').catch(() => {});
+      await chrome.runtime.sendMessage({ type: 'generic-disable', site });
+      await chrome.tabs.reload(tab.id);
+      window.close();
+    });
+  return !!enabled;
+}
+
 async function init() {
   const settings = await chrome.storage.sync.get([
     'nickname',
@@ -218,7 +330,13 @@ async function init() {
   $('nickname').addEventListener('input', syncHeaderBar);
 
   [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  service = tab?.url && SERVICES[new URL(tab.url).hostname];
+  const url = tab?.url ? new URL(tab.url) : null;
+  service = url && SERVICES[url.hostname];
+  if (!service && url && /^https?:$/.test(url.protocol)) {
+    service = GENERIC;
+    if (!(await setUpGeneric(url))) return show('genericOff');
+    $('genericTools').hidden = false;
+  }
   if (!service) return show('unsupported');
 
   try {
@@ -243,8 +361,25 @@ async function init() {
       const res = await send('join', { ...args, sessionId });
       render(res);
       const mine = args.videoId;
+      // MovieBox Pro ids nest ("tv-1" is the show page, "tv-1-s2e3" an episode of it); the content
+      // script takes the viewer to the host's episode itself, so only a different title is a mismatch.
+      const sameTitle = (a, b) => a === b || (service.name === 'movieboxpro' && (a.startsWith(`${b}-`) || b.startsWith(`${a}-`)));
       if (res.hostService && res.hostService !== service.name) showError(`The host is watching on ${res.hostService}.`);
-      else if (res.hostVideoId && mine && res.hostVideoId !== mine) showError('The host is on a different title or episode. Open the same one to stay in sync.');
+      else if (service === GENERIC && res.hostVideoId && res.hostVideoId !== mine) {
+        let where = res.hostVideoId;
+        try {
+          const h = new URL(res.hostVideoId);
+          where = h.hostname + h.pathname;
+        } catch {}
+        showError(`The host is on a different page: ${where}. Open the same page to stay in sync.`);
+      }
+      else if (res.hostVideoId && mine && !sameTitle(res.hostVideoId, mine)) {
+        showError(
+          service.name === 'movieboxpro'
+            ? 'The host is on a different title. Taking you there…'
+            : 'The host is on a different title or episode. Open the same one to stay in sync.'
+        );
+      }
     });
 
   $('showChatToggle').onchange = async () => {

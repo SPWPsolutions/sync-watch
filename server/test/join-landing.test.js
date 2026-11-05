@@ -84,3 +84,55 @@ test('web-player parties and unknown ids still redirect to the web app', async (
   assert.equal(missing.status, 302);
   assert.equal(missing.headers.location, '/?session=deadbeefdeadbeef');
 });
+
+test('MovieBox Pro film link opens the title with autoplay and the session param', async () => {
+  const room = store.create({ videoId: 'movie-80740', videoService: 'movieboxpro', serviceDomain: 'www.movieboxpro.app' });
+  const res = await get(`/join/${room.sessionId}`);
+  assert.equal(res.status, 200);
+  assert.ok(res.body.includes(`href="https://www.movieboxpro.app/movie/80740?play=1&amp;psSession=${room.sessionId}"`));
+  assert.match(res.body, /Open on MovieBox Pro/);
+});
+
+test('MovieBox Pro episode link opens that season and episode', async () => {
+  const room = store.create({ videoId: 'tv-22297-s2e3', videoService: 'movieboxpro', serviceDomain: 'movieboxpro.app' });
+  const res = await get(`/join/${room.sessionId}`);
+  assert.equal(res.status, 200);
+  assert.ok(res.body.includes(`https://www.movieboxpro.app/tvshow/22297?season=2&amp;episode=3&amp;play=1&amp;psSession=${room.sessionId}`));
+});
+
+test('MovieBox Pro show link without an episode opens the show page', async () => {
+  const room = store.create({ videoId: 'tv-22297', videoService: 'movieboxpro', serviceDomain: 'www.movieboxpro.app' });
+  const res = await get(`/join/${room.sessionId}`);
+  assert.ok(res.body.includes(`https://www.movieboxpro.app/tvshow/22297?play=1&amp;psSession=${room.sessionId}`));
+});
+
+test('MovieBox Pro room with a malformed videoId falls back to the web app', async () => {
+  const room = store.create({ videoId: 'tv-22297-s2e3"><script>', videoService: 'movieboxpro', serviceDomain: 'www.movieboxpro.app' });
+  const res = await get(`/join/${room.sessionId}`);
+  assert.equal(res.status, 302);
+});
+
+test('generic party link names the site and does not auto-redirect', async () => {
+  const room = store.create({ videoId: 'https://videos.example.org/watch/42?ep=3', videoService: 'generic', serviceDomain: 'videos.example.org' });
+  addHost(room, 'host');
+  const res = await get(`/join/${room.sessionId}`);
+  assert.equal(res.status, 200);
+  assert.ok(res.body.includes(`href="https://videos.example.org/watch/42?ep=3&amp;psSession=${room.sessionId}"`));
+  assert.match(res.body, /Open on videos\.example\.org/);
+  assert.match(res.body, /data-generic="1"/);
+});
+
+test('generic party with a non-web or oversized URL falls back to the web app', async () => {
+  for (const videoId of ['javascript:alert(1)', 'https://user:pw@example.org/', `https://example.org/${'a'.repeat(3000)}`, 'not a url']) {
+    const room = store.create({ videoId, videoService: 'generic', serviceDomain: 'example.org' });
+    const res = await get(`/join/${room.sessionId}`);
+    assert.equal(res.status, 302, videoId.slice(0, 40));
+  }
+});
+
+test('generic party escapes the hostname and URL in the page', async () => {
+  const room = store.create({ videoId: 'https://example.org/"><script>x</script>', videoService: 'generic', serviceDomain: 'example.org' });
+  const res = await get(`/join/${room.sessionId}`);
+  assert.equal(res.status, 200);
+  assert.ok(!res.body.includes('<script>x</script>'));
+});

@@ -50,10 +50,45 @@ const SERVICES = {
     videoId: /^[\w-]{11}$/,
     watchUrl: (id, sid) => `https://www.youtube.com/watch?v=${id}&psSession=${sid}`,
   },
+  // Ids: movie-<n>, tv-<n> (show page) or tv-<n>-s<season>e<episode>. The site has no watch URL; its
+  // detail page autoplays with play=1 and opens a given episode with season/episode (its own
+  // Next Episode deep link), which the extension also uses.
+  movieboxpro: {
+    name: 'MovieBox Pro',
+    domain: 'www.movieboxpro.app',
+    videoId: /^(?:movie-\d{1,12}|tv-\d{1,12}(?:-s\d{1,4}e\d{1,4})?)$/,
+    watchUrl: (id, sid) => {
+      const m = /^(movie|tv)-(\d+)(?:-s(\d+)e(\d+))?$/.exec(id);
+      if (m[1] === 'movie') return `https://www.movieboxpro.app/movie/${m[2]}?play=1&psSession=${sid}`;
+      const episode = m[3] ? `season=${m[3]}&episode=${m[4]}&` : '';
+      return `https://www.movieboxpro.app/tvshow/${m[2]}?${episode}play=1&psSession=${sid}`;
+    },
+  },
 };
+
+const GENERIC_MAX_URL = 2048;
+
+// Generic parties (any site the host turned on in the extension) store the page URL as the video id.
+// The landing page never redirects to it automatically: it names the site and waits for a click.
+function genericHandoff(room) {
+  const raw = String(room.videoId ?? '');
+  if (raw.length > GENERIC_MAX_URL) return null;
+  let u;
+  try {
+    u = new URL(raw);
+  } catch {
+    return null;
+  }
+  if (u.protocol !== 'https:' && u.protocol !== 'http:') return null;
+  if (u.username || u.password) return null;
+  u.searchParams.set('psSession', room.sessionId);
+  u.hash = '';
+  return { service: 'generic', generic: true, name: u.hostname, videoId: raw, watchUrl: u.href };
+}
 
 function extensionHandoff(room) {
   if (!room || !/^[a-f0-9]{6,64}$/.test(room.sessionId)) return null;
+  if (String(room.videoService || '').toLowerCase() === 'generic') return genericHandoff(room);
   const key = Object.keys(SERVICES).find(
     (k) => room.serviceDomain === SERVICES[k].domain || (!SERVICES[k].domainOnly && String(room.videoService || '').toLowerCase() === k)
   );
@@ -129,11 +164,14 @@ code{background:#22222c;padding:1px 6px;border-radius:6px;color:var(--text)}
 <main>
 <p class="eyebrow"><span>WP · Wooper's Party · ${name}</span><span class="wooper" title="Wooper"></span></p>
 <h1>You're invited to watch on ${name}</h1>
-<p>Everyone watches on their own ${name} account. The free Wooper's Party browser extension keeps play, pause and seeking in sync.</p>
+${handoff.generic
+  ? `<p>The host is watching a video on <b>${name}</b>. The free Wooper's Party browser extension keeps play, pause and seeking in sync.</p>
+<p>First time on ${name}? Open it, click the Wooper's Party icon and choose <b>Turn on for ${name}</b>. The page reloads and you join the party.</p>`
+  : `<p>Everyone watches on their own ${name} account. The free Wooper's Party browser extension keeps play, pause and seeking in sync.</p>`}
 <p class="who"><i></i>${count} watching${host ? ` · hosted by ${esc(host)}` : ''}</p>
 <a class="btn btn--primary" id="open" href="${esc(handoff.watchUrl)}">Open on ${name}</a>
 <a class="btn" href="${installHref}">I don't have Wooper's Party yet</a>
-<p class="status" id="status" aria-live="polite">Wooper's Party not detected in this browser. Install it first, then press Open on ${name}.</p>
+<p class="status" id="status" aria-live="polite" data-generic="${handoff.generic ? '1' : ''}">Wooper's Party not detected in this browser. Install it first, then press Open on ${name}.</p>
 <section id="install">
 <h2>Install Wooper's Party (Chrome, Edge, Brave)</h2>
 <ol>
@@ -151,6 +189,10 @@ code{background:#22222c;padding:1px 6px;border-radius:6px;color:var(--text)}
   if (!v) return;
   var s = document.getElementById('status');
   s.setAttribute('data-on', '');
+  if (s.getAttribute('data-generic')) {
+    s.textContent = "Wooper's Party detected. Press Open on ${name} to continue.";
+    return;
+  }
   s.textContent = "Wooper's Party detected. Opening ${name}…";
   setTimeout(function () { location.replace(document.getElementById('open').href); }, 1200);
 })();

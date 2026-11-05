@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Wooper's Party",
-  "version": "1.2.0",
-  "description": "Wooper's Party — Watch Netflix, Crunchyroll, Disney+, Hulu, Max, Prime Video, Paramount+, and YouTube in sync with friends.",
+  "version": "1.3.0",
+  "description": "Wooper's Party — Watch Netflix, Crunchyroll, Disney+, Hulu, Max, Prime Video, Paramount+, YouTube, and MovieBox Pro in sync with friends.",
   "minimum_chrome_version": "111",
   "action": {
     "default_popup": "popup/popup.html",
@@ -21,7 +21,13 @@
     "service_worker": "background.js"
   },
   "permissions": [
-    "storage"
+    "storage",
+    "scripting",
+    "activeTab"
+  ],
+  "optional_host_permissions": [
+    "https://*/*",
+    "http://*/*"
   ],
   "host_permissions": [
     "https://www.netflix.com/*",
@@ -33,6 +39,8 @@
     "https://www.primevideo.com/*",
     "https://www.paramountplus.com/*",
     "https://www.youtube.com/*",
+    "https://www.movieboxpro.app/*",
+    "https://movieboxpro.app/*",
     "https://watch.pwlive.fyi/*",
     "http://localhost:8080/*",
     "http://127.0.0.1:8080/*"
@@ -48,7 +56,9 @@
         "https://www.amazon.com/*",
         "https://www.primevideo.com/*",
         "https://www.paramountplus.com/*",
-        "https://www.youtube.com/*"
+        "https://www.youtube.com/*",
+        "https://www.movieboxpro.app/*",
+        "https://movieboxpro.app/*"
       ],
       "js": [
         "shared/keyguard.js",
@@ -82,6 +92,17 @@
       ],
       "js": [
         "youtube/injected.js"
+      ],
+      "world": "MAIN",
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://www.movieboxpro.app/*",
+        "https://movieboxpro.app/*"
+      ],
+      "js": [
+        "movieboxpro/injected.js"
       ],
       "world": "MAIN",
       "run_at": "document_start"
@@ -196,6 +217,21 @@
         "shared/party.js",
         "shared/chat.js",
         "youtube/content.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://www.movieboxpro.app/*",
+        "https://movieboxpro.app/*"
+      ],
+      "js": [
+        "shared/socket.js",
+        "shared/sync.js",
+        "shared/media.js",
+        "shared/party.js",
+        "shared/chat.js",
+        "movieboxpro/content.js"
       ],
       "run_at": "document_idle"
     },

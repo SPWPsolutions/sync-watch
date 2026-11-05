@@ -73,7 +73,15 @@
         <a href="https://www.amazon.com/gp/video/storefront" target="_blank" rel="noreferrer">Prime Video</a>
         <a href="https://www.paramountplus.com" target="_blank" rel="noreferrer">Paramount+</a>
         <a href="https://www.youtube.com" target="_blank" rel="noreferrer">YouTube</a>
+        <a href="https://www.movieboxpro.app" target="_blank" rel="noreferrer">MovieBox Pro</a>
       </div>
+    </section>
+
+    <section id="genericOff" hidden>
+      <h2>Use Wooper's Party here?</h2>
+      <p class="sub">Works on most sites that play an HTML5 video. Start playing the video first so the player can be found, then turn it on. The page reloads afterwards.</p>
+      <button id="genericEnable" class="cta-gradient">Turn on for <span id="genericHost"></span></button>
+      <p class="sub generic-note">Best effort: some players fight outside control or reset after a seek.</p>
     </section>
 
     <section id="idle" hidden>
@@ -152,6 +160,11 @@
     </section>
 
     <p id="error" role="alert" hidden></p>
+    <div id="genericTools" class="generic-tools" hidden>
+      <button id="genericRescan" type="button" class="text-btn" title="Look for embedded players again and ask for access to them">Rescan for player</button>
+      <span aria-hidden="true">·</span>
+      <button id="genericDisable" type="button" class="text-btn">Turn off for this site</button>
+    </div>
   </main>
 
   <script src="popup.js"></script>

@@ -389,3 +389,11 @@ input:not([type="checkbox"]):focus, select:focus {
   margin: 10px 0 0;
   font-size: 12.5px;
 }
+
+/* Generic mode (any site the user turns on) */
+.generic-note { margin-top: 10px; font-size: 12px; }
+.generic-tools[hidden] { display: none; }
+.generic-tools { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 12px; font-size: 12px; color: #8b8b96; }
+.text-btn { all: unset; cursor: pointer; color: #a1a1ad; text-decoration: underline; text-underline-offset: 2px; }
+.text-btn:hover { color: #fafafa; }
+.text-btn:disabled { opacity: .5; cursor: default; }

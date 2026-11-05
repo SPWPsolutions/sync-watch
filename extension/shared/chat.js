@@ -50,7 +50,8 @@
       html[data-party-sync-sidebar="open"] .atvwebplayersdk-overlays-container,
       html[data-party-sync-sidebar="open"] disney-web-player,
       html[data-party-sync-sidebar="open"] #content-video-player,
-      html[data-party-sync-sidebar="open"] #movie_player {
+      html[data-party-sync-sidebar="open"] #movie_player,
+      html[data-party-sync-sidebar="open"] #my_dialog {
         width: calc(100vw - ${SIDEBAR_WIDTH}px) !important;
         max-width: calc(100vw - ${SIDEBAR_WIDTH}px) !important;
       }

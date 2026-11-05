@@ -2,6 +2,7 @@ const EXTENSION_SERVICES = {
   netflix: {
     name: 'Netflix',
     hosts: /(^|\.)netflix\.com$/,
+    videoId: /^\d{1,12}$/,
     id(u) {
       const m = u.pathname.match(/^\/(?:[a-z]{2}(?:-[a-z]{2})?\/)?(?:title|watch)\/(\d{1,12})(?:\/|$)/i);
       const jbv = u.searchParams.get('jbv');
@@ -13,12 +14,36 @@ const EXTENSION_SERVICES = {
   crunchyroll: {
     name: 'Crunchyroll',
     hosts: /(^|\.)crunchyroll\.com$/,
+    videoId: /^[A-Z0-9]{1,16}$/i,
     id(u) {
       const m = u.pathname.match(/^\/(?:[a-z]{2}(?:-[a-z]{2})?\/)?watch\/([A-Z0-9]{1,16})(?:\/|$)/i);
       return m ? m[1].toUpperCase() : null;
     },
     watchUrl: (id, sessionId) => `https://www.crunchyroll.com/watch/${id}${sessionId ? `?psSession=${sessionId}` : ''}`,
     homeUrl: 'https://www.crunchyroll.com/',
+  },
+  // Ids: movie-<n>, tv-<n> (show page) or tv-<n>-s<season>e<episode>. Titles live on detail pages
+  // that autoplay with play=1 and open a given episode with season/episode (the site's own deep link).
+  movieboxpro: {
+    name: 'MovieBox Pro',
+    hosts: /(^|\.)movieboxpro\.app$/,
+    videoId: /^(?:movie-\d{1,12}|tv-\d{1,12}(?:-s\d{1,4}e\d{1,4})?)$/,
+    id(u) {
+      const m = u.pathname.match(/^\/(movie|tvshow)\/(\d{1,12})(?:\/|$)/);
+      if (!m) return null;
+      if (m[1] === 'movie') return `movie-${m[2]}`;
+      const season = Number(u.searchParams.get('season'));
+      const episode = Number(u.searchParams.get('episode'));
+      return season > 0 && episode > 0 ? `tv-${m[2]}-s${season}e${episode}` : `tv-${m[2]}`;
+    },
+    watchUrl(id, sessionId) {
+      const m = /^(movie|tv)-(\d+)(?:-s(\d+)e(\d+))?$/.exec(id);
+      const ps = sessionId ? `&psSession=${sessionId}` : '';
+      if (m[1] === 'movie') return `https://www.movieboxpro.app/movie/${m[2]}?play=1${ps}`;
+      const episode = m[3] ? `season=${m[3]}&episode=${m[4]}&` : '';
+      return `https://www.movieboxpro.app/tvshow/${m[2]}?${episode}play=1${ps}`;
+    },
+    homeUrl: 'https://www.movieboxpro.app/',
   },
 };
 
@@ -53,8 +78,7 @@ export function extensionServiceFor(videoId, videoService, serviceDomain) {
   for (const [key, svc] of Object.entries(EXTENSION_SERVICES)) {
     if (videoService === key || svc.hosts.test(serviceDomain || '')) {
       const id = String(videoId ?? '');
-      const ok = key === 'netflix' ? /^\d{1,12}$/.test(id) : /^[A-Z0-9]{1,16}$/i.test(id);
-      return { key, ...svc, videoId: ok ? id : null };
+      return { key, ...svc, videoId: svc.videoId.test(id) ? id : null };
     }
   }
   return null;

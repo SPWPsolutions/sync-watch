@@ -24,7 +24,10 @@
   }
 
   // onSession({ socket, sync, media, snapshot }) runs once per create/join and may return a cleanup fn.
-  NS.runParty = function ({ service, getVideoId = defaultDetectVideoId, createMedia, onSession }) {
+  // getServiceDomain(videoId) names the site the party is on; the generic adapter runs inside embedded
+  // player frames, whose own hostname is the video host rather than the page the user opened.
+  // Returns { join, inParty } so adapters with their own invite flow can join a party.
+  NS.runParty = function ({ service, getVideoId = defaultDetectVideoId, getServiceDomain = () => location.hostname, createMedia, onSession }) {
     const media = createMedia();
     let socket = null;
     let sync = null;
@@ -140,6 +143,9 @@
 
     async function create({ serverUrl, nickname, userIcon, nameColor, badge, controlLock = false, reactionsDisabled = false, permId, videoId }) {
       end();
+      // The popup derives its id from the tab URL; the adapter knows what is really playing (e.g. an
+      // episode picked inside the player, which MovieBox Pro does not put in the URL).
+      videoId = getVideoId() || videoId;
       const s = connect(serverUrl);
       await s.ready();
       session = {
@@ -157,7 +163,7 @@
         videoId,
         videoService: service,
         videoType: 'episode',
-        serviceDomain: location.hostname,
+        serviceDomain: getServiceDomain(videoId) || location.hostname,
         videoDuration: Number.isFinite(media.duration) ? Math.round(media.duration * 1000) : 0,
         state: media.paused ? 'paused' : 'playing',
         lastKnownTime: Math.round(media.currentTime * 1000),
@@ -287,6 +293,8 @@
         const timer = setInterval(() => tryInvite() && clearInterval(timer), 1000);
       }
     }
+
+    return { join, inParty: () => !!session?.sessionId };
   };
 
   // Written by invite.js at document_start; the login/profile flow may come first, so it survives until a /watch page.
@@ -302,6 +310,8 @@
     } catch {}
     return null;
   }
+
+  NS.storedIdentity = storedIdentity;
 
   async function storedIdentity() {
     const [{ nickname = '', userIcon = '', nameColor = '', badge = '', serverUrl }, local] = await Promise.all([
